@@ -1,0 +1,1 @@
+drop directory di_dir;
