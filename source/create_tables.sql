@@ -24,7 +24,8 @@ create table di.file_meta_data (
   keyword                varchar2(64 char) not null,
   filename_match         varchar2(255 char) not null,                           -- regexp
   fad_id                 number(2, 0),
-  character_encoding     varchar2(8 char) not null,
+  character_set          varchar2(8 char) not null,
+  ora_charset_id         number as (nls_charset_id(replace(character_set,'-',''))) virtual,
   delimiter              varchar2(1 char),
   enclosure              varchar2(1 char),
   constraint file_meta_data_pk primary key ( fmd_id ),

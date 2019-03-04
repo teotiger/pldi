@@ -2,8 +2,9 @@ create or replace package body di.di_file_adapter2
 as
 --------------------------------------------------------------------------------
   procedure insert_file_text_data(
-    i_frd_id  in file_raw_data.frd_id%type,
-    i_fmd_row in file_meta_data%rowtype)
+    i_frd_id        in file_raw_data.frd_id%type,
+    i_fmd_id        in file_meta_data.fmd_id%type,
+    i_character_set in file_meta_data.character_set%type)
   is
   begin    
     -- bessre => regexp
@@ -21,7 +22,7 @@ frd_id   ,--          number(10, 0),
     )
     values (
       i_frd_id,
-      i_fmd_row.fmd_id,
+      i_fmd_id,
       systimestamp,
       to_number(null),
       to_char(null),
