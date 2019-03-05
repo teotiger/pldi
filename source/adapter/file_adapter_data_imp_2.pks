@@ -1,4 +1,4 @@
-create or replace package di.di_file_adapter2 authid definer 
+create or replace package di.file_adapter_data_imp_2 authid definer 
 as
 
   -- This procedure try to extract the binary data to structured tabular data.
@@ -10,5 +10,5 @@ as
     i_fmd_id        in file_meta_data.fmd_id%type,
     i_character_set in file_meta_data.character_set%type);
 
-end di_file_adapter2;
+end file_adapter_data_imp_2;
 /

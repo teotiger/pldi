@@ -1,8 +1,10 @@
 create table di.file_adapter_data (
   fad_id            number(2, 0),
-  fad_description   varchar2(255 char),
+  description_text  varchar2(255 char),
   constraint file_adapter_data_pk primary key ( fad_id )
 );
+create sequence di.file_adapter_data_seq 
+  minvalue 1 start with 1 increment by 1;
 --------------------------------------------------------------------------------  
 create table di.file_raw_data (
   frd_id             number(10, 0),
@@ -11,16 +13,18 @@ create table di.file_raw_data (
   filesize           number as (dbms_lob.getlength(blob_value)) virtual,  
   blob_value         blob not null,
   constraint file_raw_data_pk primary key ( frd_id )
-);
+)
+lob (blob_value) store as file_raw_data_blob_value
+;
 create sequence di.file_raw_data_seq 
   minvalue 1 start with 1 increment by 1 cache 8;
 --------------------------------------------------------------------------------  
 create table di.file_meta_data (
   fmd_id                 number(5, 0),
-  timestamp_insert       timestamp not null,
-  timestamp_update       timestamp not null,
-  username_insert        varchar2(30 char) not null,
-  username_update        varchar2(30 char) not null,
+  timestamp_insert       timestamp default systimestamp not null,
+  timestamp_update       timestamp default systimestamp not null,
+  username_insert        varchar2(30 char) default sys_context('userenv','os_user') not null,
+  username_update        varchar2(30 char) default sys_context('userenv','os_user') not null,
   keyword                varchar2(64 char) not null,
   filename_match         varchar2(255 char) not null,                           -- regexp
   fad_id                 number(2, 0),

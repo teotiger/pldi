@@ -1,4 +1,4 @@
-create or replace package body di.di_file_adapter2
+create or replace package body di.file_adapter_data_imp_2
 as
 --------------------------------------------------------------------------------
   procedure insert_file_text_data(
@@ -34,5 +34,5 @@ frd_id   ,--          number(10, 0),
     
   end insert_file_text_data;
 --------------------------------------------------------------------------------
-end di_file_adapter2;
+end file_adapter_data_imp_2;
 /

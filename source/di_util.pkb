@@ -104,7 +104,7 @@ end blob_to_clob;
        where l_filename like replace(fmd.filename_match, '*', '%');              -- TODO regexp!
             
     
-      l_sql:='begin di_file_adapter'||l_fmd_row.fad_id||'.insert_file_text_data(:0, :1, :2, :3); end;';
+      l_sql:='begin file_adapter_data_imp_'||l_fmd_row.fad_id||'.insert_file_text_data(:0, :1, :2, :3); end;';
       execute immediate l_sql using l_frd_id, l_blob, l_fmd_row.fmd_id, l_fmd_row.character_set;
       
     exception 
@@ -140,78 +140,6 @@ return sqlcode;
           
       end case;
   end insert_file_raw_data;
---------------------------------------------------------------------------------
-  procedure insert_file_meta_data (
-    i_keyword               in file_meta_data.keyword%type,
-    i_filename_match        in file_meta_data.filename_match%type,
-    i_fad_id                in file_meta_data.fad_id%type,
-    i_character_set         in file_meta_data.character_set%type,
-    i_delimiter             in file_meta_data.delimiter%type,
-    i_enclosure             in file_meta_data.enclosure%type)
-  is
---    l_row file_meta_data%rowtype;
-    l_keyword        file_meta_data.keyword%type not null:=i_keyword ;
-    l_filename_match         file_meta_data.filename_match%type not null:=i_filename_match;
-    l_fad_id file_meta_data.fad_id%type not null:=i_fad_id;
-    l_character_set        file_meta_data.character_set%type not null:=i_character_set;
-  begin
---    l_row.fmd_id:=file_meta_data_seq.nextval;
---    l_row.timestamp_insert:=systimestamp;
---    l_row.timestamp_update:=l_row.timestamp_insert;
---    l_row.username_insert:=SYS_CONTEXT('USERENV','OS_USER');
---    l_row.username_update:=l_row.username_insert;
---    
---    l_row.keyword:=l_keyword;
---    l_row.filename_match:=l_filename_match;
---    l_row.fad_id:=l_fad_id;
---    l_row.character_set:=l_character_set;
---    -- virtual column...
---    l_row.ora_charset_id:=nls_charset_id(l_character_set);
---    
---    l_row.delimiter:=i_delimiter;
---    l_row.enclosure:=i_enclosure;
-    
-    insert into file_meta_data (
-    FMD_ID,
-TIMESTAMP_INSERT, -- default
-TIMESTAMP_UPDATE, -- default systimestamp
-USERNAME_INSERT,  -- default SYS_CONTEXT('USERENV','OS_USER');
-USERNAME_UPDATE,  -- default
-KEYWORD,
-FILENAME_MATCH,
-FAD_ID,
-CHARACTER_SET,
-DELIMITER,
-ENCLOSURE
-    )values (
-    file_meta_data_seq.nextval,
-    systimestamp,
-    systimestamp,
-    SYS_CONTEXT('USERENV','OS_USER'),
-    SYS_CONTEXT('USERENV','OS_USER'),
-    l_keyword,
-    l_filename_match,
-    l_fad_id,
-    l_character_set,
-    i_delimiter,
-    i_enclosure
-    );
-    commit;
-  end insert_file_meta_data;  
---------------------------------------------------------------------------------
-  procedure update_file_meta_data (
-    i_fmd_id               in file_meta_data.fmd_id%type,
-    i_keyword              in file_meta_data.keyword%type,
-    i_filename_match       in file_meta_data.filename_match%type,
-    i_fad_id               in file_meta_data.fad_id%type,
-    i_character_set        in file_meta_data.character_set%type,
-    i_delimiter            in file_meta_data.delimiter%type,
-    i_enclosure            in file_meta_data.enclosure%type)
-  is
-    -- TODO validation bei notnull!
-  begin
-    null;
-  end update_file_meta_data;
 --------------------------------------------------------------------------------
 end di_util;
 /

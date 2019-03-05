@@ -1,10 +1,9 @@
-create or replace package body di.di_file_adapter1
+create or replace package body di.file_adapter_data_imp_1
 as
 --------------------------------------------------------------------------------
   procedure insert_file_text_data(
-        i_frd_id        in file_raw_data.frd_id%type,
-
-    i_blob        in file_raw_data.blob_value%type,
+    i_frd_id        in file_raw_data.frd_id%type,
+    i_blob          in file_raw_data.blob_value%type,
     i_fmd_id        in file_meta_data.fmd_id%type,
     i_character_set in file_meta_data.character_set%type)
   is
@@ -75,42 +74,23 @@ as
     end dump_clob;
 --------------------------------------------------------------------------------
   begin    
-    -- blob_clob
---      di_util.function blob_to_clob (
---      i_blob_value in blob,
---      i_charset_id in number)
---    return clob
-    -- clob verstückeln
---    select blob_value
---      into l_blob
---      from file_raw_data
---     where frd_id=i_frd_id;
- dbms_output.put_line('a');     
-      l_blob:=i_blob;
- dbms_output.put_line('b' ||i_fmd_id);     
     select *
       into l_meta
       from file_meta_data
      where fmd_id=i_fmd_id;  
-           dbms_output.put_line('c');     
- dbms_output.put_line('d');     
-
+ 
+    l_blob:=i_blob;
+ 
     l_clob:=di_util.blob_to_clob(
         i_blob_value => l_blob,
         i_charset_id => l_meta.ora_charset_id
       );
-           dbms_output.put_line('e');     
 
     dump_clob(
       l_clob
     );
-
-     dbms_output.put_line('f');     
-
-    
---  
     
   end insert_file_text_data;
 --------------------------------------------------------------------------------
-end di_file_adapter1;
+end file_adapter_data_imp_1;
 /
