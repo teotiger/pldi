@@ -63,6 +63,9 @@ end blob_to_clob;
     l_blob blob;
     l_dest_offset integer := 1;
     l_src_offset integer := 1;
+    
+    l_fmd_row file_meta_data%rowtype;
+    l_sql varchar2(1000 char);
   begin
     l_frd_id:=file_raw_data_seq.nextval;
     insert into file_raw_data (
@@ -90,19 +93,30 @@ end blob_to_clob;
       );
     end if;
     dbms_lob.fileclose(l_bfile);    
-     
---di_file_adapter'||l_fmd_row.fad_id||'.insert_file_text_data(:0, :1, :2); end;';
 
- dbms_output.put_line('bef');     
-di_file_adapter1.insert_file_text_data(l_frd_id, l_blob, 5, 'UTF-8'); 
+
+
+    begin
+  
+      select *
+        into l_fmd_row
+        from file_meta_data fmd 
+       where l_filename like replace(fmd.filename_match, '*', '%');              -- TODO regexp!
+            
+    
+      l_sql:='begin di_file_adapter'||l_fmd_row.fad_id||'.insert_file_text_data(:0, :1, :2, :3); end;';
+      execute immediate l_sql using l_frd_id, l_blob, l_fmd_row.fmd_id, l_fmd_row.character_set;
+      
+    exception 
+      when no_data_found then null;
+      when others then
+      rollback;
+      sys.dbms_output.put_line('AHA!');
+      sys.dbms_output.put_line(sqlerrm);
+    end;
+    
  dbms_output.put_line('aft');     
-
---i_frd_id        in file_raw_data.frd_id%type,
---    i_blob        in file_raw_data.blob_value%type,
---    i_fmd_id        in file_meta_data.fmd_id%type,
---    i_ch
---  execute immediate l_sql using :new.frd_id, :new.blob_value,l_fmd_row.fmd_id, l_fmd_row.character_set;     
-     
+ 
     commit;
     return 0;
   
@@ -116,8 +130,11 @@ di_file_adapter1.insert_file_text_data(l_frd_id, l_blob, 5, 'UTF-8');
           return 2;
         else
           -- TODO
---          sys.dbms_output.put_line(sqlerrm); 
---          return sqlcode;
+          sys.dbms_output.put_line(sqlerrm); 
+          sys.dbms_output.put_line(DBMS_UTILITY.format_error_stack); 
+
+
+return sqlcode;
           
           raise;
           

@@ -53,6 +53,11 @@ create table di.file_text_data (
   c003               varchar2(4000 char),
   c004               varchar2(4000 char),
   c005               varchar2(4000 char),
+  c006               varchar2(4000 char),
+  c007               varchar2(4000 char),
+  c008               varchar2(4000 char),
+  c009               varchar2(4000 char),
+  c010               varchar2(4000 char),
   constraint file_text_data_frd_id_fk foreign key ( frd_id )
     references di.file_raw_data ( frd_id ),
   constraint file_text_data_fmd_id_fk foreign key ( fmd_id )

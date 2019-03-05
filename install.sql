@@ -25,8 +25,6 @@ prompt => Install Packages
 @@source/di_file_adapter1.pkb
 @@source/di_file_adapter2.pkb
 @@tests/di_util_test.pkb
-prompt => Install Trigger
-@@source/file_raw_data_ai_trg.sql
 prompt => Create some (sample) data
 @@source/create_table_data.sql
 prompt => Compile in native mode
