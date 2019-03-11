@@ -1,39 +1,61 @@
---*************************
--- PLDI INSTALLATION SCRIPT
---*************************
+clear screen
 
-  --> TODO via prompt min. Direcotry pfad mitnehmen (ggf. user?) s.a. /home/alegria/Development/PLSQL/plsql/work/setl/
+prompt ************************
+prompt PLDI INSTALLATION SCRIPT
+prompt ************************
 
-clear screen;
-set scan off;
+set echo off
+set verify off
+set feedback off
 
-prompt => Create user di
-@@source/create_user.sql
-prompt => Create tables
-@@source/create_tables.sql
-prompt => Create directory
-@@source/create_directory.sql
-prompt => Set plsql_optimize_level to 3
-alter session set plsql_optimize_level=3;
-alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(6005,6009,7206,7202)';
-prompt => Install Packages
-@@source/di_util.pks
-@@source/di_util.pkb
-@@tests/di_util_test.pks
-@@tests/di_util_test.pkb
+column 1 new_value 1 noprint
+column 2 new_value 2 noprint
+column 3 new_value 3 noprint
+column 4 new_value 4 noprint
 
-@@source/api/file_meta_data_api.pks
-@@source/api/file_adapter_data_api.pks
-@@source/api/file_meta_data_api.pkb
-@@source/api/file_adapter_data_api.pkb
+select null as "1", null as "2", null as "3", null as "4" 
+  from dual 
+ where 1=0;
+  
+column pldi_user      new_value pldi_user      noprint
+column pldi_password  new_value pldi_password  noprint
+column pldi_directory new_value pldi_directory noprint
+column pldi_path_name new_value pldi_path_name noprint
 
-@@source/adapter/file_adapter_data_imp_1.pks
-@@source/adapter/file_adapter_data_imp_2.pks
-@@source/adapter/file_adapter_data_imp_1.pkb
-@@source/adapter/file_adapter_data_imp_2.pkb
+select coalesce('&&1','PLDI') pldi_user,
+       coalesce('&&2','pldi') pldi_password,
+       coalesce('&&3','PLDI_FILES') pldi_directory,
+       coalesce('&&4','/opt/pldi') pldi_path_name
+  from dual;
 
-prompt => Create some (sample) data
-@@source/create_table_data.sql
-prompt => Compile in native mode
-alter package di_util compile plsql_code_type=native;                           -- TODO -> all in native?
+prompt Create user and directory...
+@@create_user.sql &&pldi_user &&pldi_password &&pldi_directory &&pldi_path_name
+prompt ...done!
+
+prompt Create tables...
+@@source/file_adapter_data.sql &&pldi_user
+@@source/file_raw_data.sql &&pldi_user
+@@source/file_meta_data.sql &&pldi_user
+@@source/file_text_data.sql &&pldi_user
+prompt ...done!
+
+prompt Create packages...
+@@source/api/file_adapter_data_api.pks &&pldi_user
+@@source/api/file_meta_data_api.pks &&pldi_user
+@@source/api/file_adapter_data_api.pkb &&pldi_user
+@@source/api/file_meta_data_api.pkb &&pldi_user
+@@source/pldi_util.pks &&pldi_user
+@@source/pldi_util.pkb &&pldi_user
+@@tests/pldi_util_test.pks &&pldi_user
+@@tests/pldi_util_test.pkb &&pldi_user
+@@source/adapter/file_adapter_data_imp_1.pks &&pldi_user
+@@source/adapter/file_adapter_data_imp_2.pks &&pldi_user
+@@source/adapter/file_adapter_data_imp_1.pkb &&pldi_user
+@@source/adapter/file_adapter_data_imp_1.pkb &&pldi_user
+prompt ...done!
+
+prompt Create sample data...
+@@source/sample_data.sql &&pldi_user
+prompt ...done!
+
 exit

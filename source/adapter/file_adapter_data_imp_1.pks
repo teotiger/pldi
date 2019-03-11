@@ -1,4 +1,4 @@
-create or replace package di.file_adapter_data_imp_1 authid definer 
+create or replace package &&pldi_user..file_adapter_data_imp_1 authid definer 
 as
 
   -- This procedure try to extract the binary data to structured tabular data.

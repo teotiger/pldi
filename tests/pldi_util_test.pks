@@ -1,4 +1,4 @@
-create or replace package di.di_util_test authid definer as
+create or replace package &&pldi_user..pldi_util_test authid definer as
 
   -- %suite(UnitTests for di_util package)
 
@@ -8,5 +8,5 @@ create or replace package di.di_util_test authid definer as
   -- %test(Error Code 2 - No such file)
   procedure insert_file_non_existing_file;  
 
-end di_util_test;
+end pldi_util_test;
 /

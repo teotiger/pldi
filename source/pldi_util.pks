@@ -1,4 +1,4 @@
-create or replace package di.di_util authid definer 
+create or replace package &&pldi_user..pldi_util authid definer 
 as
 
   subtype error_code is binary_integer range 0..9;
@@ -31,5 +31,5 @@ as
       i_directory in varchar2 default default_directory)
     return error_code deterministic;
 
-end di_util;
+end pldi_util;
 /

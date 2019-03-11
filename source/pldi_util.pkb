@@ -1,4 +1,4 @@
-create or replace package body di.di_util
+create or replace package body &&pldi_user..pldi_util
 as
 --------------------------------------------------------------------------------
   function error_code_to_error_message (
@@ -141,5 +141,5 @@ return sqlcode;
       end case;
   end insert_file_raw_data;
 --------------------------------------------------------------------------------
-end di_util;
+end pldi_util;
 /

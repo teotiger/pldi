@@ -1,4 +1,4 @@
-create or replace package body di.file_adapter_data_api
+create or replace package body &&pldi_user..file_adapter_data_api
 as
 --------------------------------------------------------------------------------
 procedure insert_row (
