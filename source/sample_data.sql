@@ -1,23 +1,36 @@
 begin
   -- adapter data
-  &&pldi_user..file_adapter_data_api.insert_row(
+  file_adapter_data_api.insert_row(
     'CSV, TSV, TAB etc. -- delimiter-separated values (also DSV)');
-  &&pldi_user..file_adapter_data_api.insert_row(
+  file_adapter_data_api.insert_row(
     'XLSX -- Office Open XML (OOXML or Microsoft Open XML');
   -- meta data
-  &&pldi_user..file_meta_data_api.insert_row(
+  file_meta_data_api.insert_row(
     i_keyword => 'simple standard csv with enclosure',
-    i_filename_match => 'count*.csv',
+    i_filename_match_like => 'count*.csv',
+    i_filename_match_regexp_like => null,
     i_fad_id => 1,
     i_character_set => 'UTF-8',
     i_delimiter => ',',
-    i_enclosure => '"');
-  &&pldi_user..file_meta_data_api.insert_row(
+    i_enclosure => '"',
+    i_plsql_after_processing => null);
+  file_meta_data_api.insert_row(
     i_keyword => 'simple standard csv without enclosure',
-    i_filename_match => '*employ*.csv',
+    i_filename_match_like => '*employ*.csv',
+    i_filename_match_regexp_like => null,
     i_fad_id => 1,
     i_character_set => 'UTF-8',
     i_delimiter => ',',
-    i_enclosure => null);
+    i_enclosure => null,
+    i_plsql_after_processing => null);
+  file_meta_data_api.insert_row(
+    i_keyword => 'tsv example',
+    i_filename_match_like => '*.tsv',
+    i_filename_match_regexp_like => null,
+    i_fad_id => 1,
+    i_character_set => 'UTF-8',
+    i_delimiter => chr(9),
+    i_enclosure => null,
+    i_plsql_after_processing => null);
 end;
 /

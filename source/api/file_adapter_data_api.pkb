@@ -1,4 +1,4 @@
-create or replace package body &&pldi_user..file_adapter_data_api
+create or replace package body file_adapter_data_api
 as
 --------------------------------------------------------------------------------
 procedure insert_row (
@@ -14,7 +14,19 @@ procedure insert_row (
       l_description_text
     );
     commit;
-  end insert_row;  
+  end insert_row;
+--------------------------------------------------------------------------------
+  procedure update_row
+  is
+  begin
+    null;
+  end update_row;
+--------------------------------------------------------------------------------
+  procedure delete_row
+  is
+  begin
+    null;
+  end delete_row;
 --------------------------------------------------------------------------------
 end file_adapter_data_api;
 /

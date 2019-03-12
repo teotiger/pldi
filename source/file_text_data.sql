@@ -1,4 +1,4 @@
-create table &&pldi_user..file_text_data (
+create table file_text_data (
   frd_id             number(10, 0),
   fmd_id             number(5, 0),
   timestamp_insert   timestamp not null,
@@ -15,8 +15,9 @@ create table &&pldi_user..file_text_data (
   c008               varchar2(4000 char),
   c009               varchar2(4000 char),
   c010               varchar2(4000 char),
+  -- combined PK?!?                                                             -- TODO
   constraint file_text_data_frd_id_fk foreign key ( frd_id )
-    references &&pldi_user..file_raw_data ( frd_id ),
+    references file_raw_data ( frd_id ),
   constraint file_text_data_fmd_id_fk foreign key ( fmd_id )
-    references &&pldi_user..file_meta_data ( fmd_id )
+    references file_meta_data ( fmd_id )
 );

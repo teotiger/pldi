@@ -1,4 +1,4 @@
-create or replace package body &&pldi_user..file_adapter_data_imp_1
+create or replace package body file_adapter_data_imp_1
 as
 --------------------------------------------------------------------------------
   procedure insert_file_text_data(
@@ -18,6 +18,14 @@ as
       arr2  apex_application_global.vc_arr2;
       l_row file_text_data%rowtype;
       l_rest   varchar2(4000) := '';
+      
+      function trimit(i_str in varchar2, i_chr in varchar2) return varchar2 deterministic is
+      begin
+        return case when i_chr is not null 
+                then trim(both l_meta.enclosure from i_str) 
+                else i_str
+               end;
+      end;
     begin
       arr := apex_util.string_to_table(l_rest || buf, chr(10));
       for i in 1..arr.count loop
@@ -36,16 +44,16 @@ as
           l_row.row_number := r;                                                        
           for i in 1..arr2.count loop
             case i
-              when 1  then l_row.c001:=trim(both l_meta.enclosure from arr2(i));
-              when 2  then l_row.c002:=trim(both l_meta.enclosure from arr2(i));
-              when 3  then l_row.c003:=trim(both l_meta.enclosure from arr2(i));
-              when 4  then l_row.c004:=trim(both l_meta.enclosure from arr2(i));
-              when 5  then l_row.c005:=trim(both l_meta.enclosure from arr2(i));
-              when 6  then l_row.c006:=trim(both l_meta.enclosure from arr2(i));
-              when 7  then l_row.c007:=trim(both l_meta.enclosure from arr2(i));
-              when 8  then l_row.c008:=trim(both l_meta.enclosure from arr2(i));
-              when 9  then l_row.c009:=trim(both l_meta.enclosure from arr2(i));
-              when 10 then l_row.c010:=trim(both l_meta.enclosure from arr2(i));              
+              when 1  then l_row.c001:=trimit(arr2(i), l_meta.enclosure);
+              when 2  then l_row.c002:=trimit(arr2(i), l_meta.enclosure);
+              when 3  then l_row.c003:=trimit(arr2(i), l_meta.enclosure);
+              when 4  then l_row.c004:=trimit(arr2(i), l_meta.enclosure);
+              when 5  then l_row.c005:=trimit(arr2(i), l_meta.enclosure);
+              when 6  then l_row.c006:=trimit(arr2(i), l_meta.enclosure);
+              when 7  then l_row.c007:=trimit(arr2(i), l_meta.enclosure);
+              when 8  then l_row.c008:=trimit(arr2(i), l_meta.enclosure);
+              when 9  then l_row.c009:=trimit(arr2(i), l_meta.enclosure);
+              when 10 then l_row.c010:=trimit(arr2(i), l_meta.enclosure);            
               else null;
             end case;
           end loop;
@@ -81,7 +89,7 @@ as
  
     l_blob:=i_blob;
  
-    l_clob:=pldi_util.blob_to_clob(
+    l_clob:=utils.blob_to_clob(
         i_blob_value => l_blob,
         i_charset_id => l_meta.ora_charset_id
       );
@@ -89,6 +97,8 @@ as
     dump_clob(
       l_clob
     );
+    
+    commit;
     
   end insert_file_text_data;
 --------------------------------------------------------------------------------

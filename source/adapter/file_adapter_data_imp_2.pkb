@@ -1,4 +1,4 @@
-create or replace package body &&pldi_user..file_adapter_data_imp_2
+create or replace package body file_adapter_data_imp_2
 as
 --------------------------------------------------------------------------------
   procedure insert_file_text_data(

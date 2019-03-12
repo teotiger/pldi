@@ -1,4 +1,4 @@
-create or replace package &&pldi_user..file_adapter_data_imp_1 authid definer 
+create or replace package file_adapter_data_imp_1 authid definer 
 as
 
   -- This procedure try to extract the binary data to structured tabular data.
@@ -7,7 +7,7 @@ as
   -- @The character set to encode the file.
   procedure insert_file_text_data(
     i_frd_id        in file_raw_data.frd_id%type,
-    i_blob        in file_raw_data.blob_value%type,
+    i_blob          in file_raw_data.blob_value%type,
     i_fmd_id        in file_meta_data.fmd_id%type,
     i_character_set in file_meta_data.character_set%type);
 
