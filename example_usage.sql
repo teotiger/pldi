@@ -3,6 +3,11 @@
 set serveroutput on;
 
 begin
+  utils.processing_file('countries.csv');
+end;
+/
+
+begin
   file_raw_data_api.insert_row('countries.csv');
   file_text_data_api.insert_rows('countries.csv');
 

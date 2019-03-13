@@ -37,16 +37,15 @@ prompt ...done!
 alter session set current_schema = pldi;
 
 prompt Create tables...
-@@source/file_adapter_data.sql
-@@source/file_raw_data.sql
-@@source/file_meta_data.sql
-@@source/file_text_data.sql
+@@source/table/file_adapter_data.sql
+@@source/table/file_raw_data.sql
+@@source/table/file_meta_data.sql
+@@source/table/file_text_data.sql
 prompt ...done!
 
 prompt Create types, packages and views...
 @@source/varchar2_tt.tps
 @@source/utils.pks
-@@source/utils.pkb &&pldi_directory
 @@source/api/file_adapter_data_api.pks
 @@source/api/file_raw_data_api.pks
 @@source/api/file_meta_data_api.pks
@@ -55,6 +54,7 @@ prompt Create types, packages and views...
 @@source/api/file_raw_data_api.pkb
 @@source/api/file_meta_data_api.pkb
 @@source/api/file_text_data_api.pkb
+@@source/utils.pkb &&pldi_directory
 @@tests/utils_test.pks
 @@tests/utils_test.pkb
 @@source/adapter/file_adapter_data_imp_1.pks

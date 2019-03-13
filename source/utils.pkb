@@ -65,5 +65,18 @@ as
     return l_blob;
   end clob_to_blob;
 --------------------------------------------------------------------------------
+  procedure processing_file (
+      i_filename in varchar2)
+  is
+    l_sql varchar2(4000 char);
+  begin
+    l_sql:=file_text_data_api.insert_rows(
+            i_frd_id => file_raw_data_api.insert_row(i_filename)
+           );
+    if l_sql is not null then
+      execute immediate l_sql;
+    end if;
+  end processing_file;
+--------------------------------------------------------------------------------
 end utils;
 /
