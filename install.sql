@@ -29,8 +29,8 @@ select coalesce('&&1','PLDI') pldi_user,
   from dual;
 
 prompt Create user and directory...
-@@source/create_user.sql pldi pldi &&pldi_directory &&pldi_path_name
---@@source/create_user.sql &&pldi_user &&pldi_password &&pldi_directory &&pldi_path_name
+--@@source/create_user.sql pldi pldi &&pldi_directory &&pldi_path_name
+@@source/create_user.sql &&pldi_user &&pldi_password &&pldi_directory &&pldi_path_name
 prompt ...done!
 
 -- switching to new schema
