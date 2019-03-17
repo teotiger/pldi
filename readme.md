@@ -18,17 +18,29 @@ select * from table(ut.run());
 
 ## Installation
 
-`wget https://github.com/teotiger/pldi/archive/master.zip` && unzip master.zip
+Use WGET or CURL to download and then UNZIP to extract the archive.
+
+```bash
+wget https://github.com/teotiger/pldi/archive/master.zip` && unzip master.zip
+```
 
 or
 
-`curl -o http...`
+```bash
+curl -o https://github.com/teotiger/pldi/archive/master.zip
+unzip master.zip
+```
 
-asdsad
+Connect as SYSDBA to your database and use the `install.sql` file with or without parameters:
 
-`sqplus "sys/supersecretpassword@localhost as sysdba" @install`
+```bash
+sqplus "sys/supersecretpassword@localhost as sysdba" @install
+```
 
-Optionally, define 1 of the 4 parameters:
-
+The 4 possible parameters are:
 1. asdsd (Default: ...)
 2. asdsad
+3. fdf
+4. ad
+
+asdsdas

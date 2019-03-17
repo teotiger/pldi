@@ -14,8 +14,8 @@ as
     ---
     procedure dump_str (buf in varchar2) 
     is
-      arr   apex_application_global.vc_arr2;
-      arr2  apex_application_global.vc_arr2;
+      arr   sys.ora_mining_varchar2_nt;--apex_application_global.vc_arr2;
+      arr2  sys.ora_mining_varchar2_nt;--apex_application_global.vc_arr2;
       l_row file_text_data%rowtype;
       l_rest   varchar2(4000) := '';
       
@@ -27,13 +27,16 @@ as
                end;
       end;
     begin
-      arr := apex_util.string_to_table(l_rest || buf, chr(10));
+    
+      arr := utils.split_varchar2(l_rest || buf, chr(10), l_meta.enclosure);
+--      arr := apex_util.string_to_table(l_rest || buf, chr(10));
       for i in 1..arr.count loop
         r:=r+1;
         
         if i < arr.count then
           -- array auseinandernehmen
-          arr2 := apex_util.string_to_table(arr(i), l_meta.delimiter);
+          arr2 := utils.split_varchar2(arr(i), l_meta.delimiter, l_meta.enclosure);
+--          arr2 := apex_util.string_to_table(arr(i), l_meta.delimiter);
           
          
           l_row.frd_id := i_frd_id;--  ,--          number(10, 0),
@@ -99,6 +102,10 @@ as
     );
     
     commit;
+    
+    if l_meta.plsql_after_processing is not null then
+      execute immediate l_meta.plsql_after_processing using i_frd_id;
+    end if;
     
   end insert_file_text_data;
 --------------------------------------------------------------------------------

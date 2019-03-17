@@ -21,3 +21,4 @@ create table file_text_data (
   constraint file_text_data_fmd_id_fk foreign key ( fmd_id )
     references file_meta_data ( fmd_id )
 );
+create index file_text_data_frd_id_idx on file_text_data (frd_id);

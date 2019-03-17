@@ -34,7 +34,7 @@ prompt Create user and directory...
 prompt ...done!
 
 -- switching to new schema
-alter session set current_schema = pldi;
+alter session set current_schema = &&pldi_user;
 
 prompt Create tables...
 @@source/table/file_adapter_data.sql
@@ -44,7 +44,6 @@ prompt Create tables...
 prompt ...done!
 
 prompt Create types, packages and views...
-@@source/varchar2_tt.tps
 @@source/utils.pks
 @@source/api/file_adapter_data_api.pks
 @@source/api/file_raw_data_api.pks

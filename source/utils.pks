@@ -20,6 +20,18 @@ as
       i_clob_value in clob,
       i_charset_id in number)
     return blob;
+
+  -- Split the argument into several parts.
+  -- @The input string.
+  -- @The delimiter (one character only).
+  -- @The field enclosure character (one character only).
+  function split_varchar2 (
+      i_string_value in varchar2,
+      i_delimiter    in varchar2,
+      i_enclosure    in varchar2)
+--    return varchar2_tt deterministic;
+    return sys.ora_mining_varchar2_nt deterministic;-- pipelined;
+--    return sys.odcivarchar2list pipelined;
     
   -- This procedure insert a file into FILE_RAW_DATA and then tries to extract
   -- the content to FILE_TEXT_DATA.

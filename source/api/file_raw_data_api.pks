@@ -18,6 +18,13 @@ as
     i_plain_text    in clob,
     i_character_set in file_meta_data.character_set%type);
 
+  -- Add a new row to FILE_RAW_DATA.
+  function insert_row (
+      i_filename      in file_raw_data.filename%type,
+      i_plain_text    in clob,
+      i_character_set in file_meta_data.character_set%type)
+    return number;
+
   -- Modify an existing row in FILE_RAW_DATA.
   procedure update_row;                                                         -- TODO
 

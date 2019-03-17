@@ -6,7 +6,7 @@ create table file_raw_data (
   blob_value         blob not null,
   constraint file_raw_data_pk primary key ( frd_id )
 )
-  lob (blob_value) store as file_raw_data_blob_value
+  lob (blob_value) store as file_raw_data_blob_value (index file_raw_data_blob_value_idx)
 ;
 -------
 create sequence file_raw_data_seq 
