@@ -22,7 +22,7 @@ begin
     i_character_set => 'UTF-8',
     i_delimiter => ',',
     i_enclosure => null,
-    i_plsql_after_processing => null);
+    i_plsql_after_processing => 'begin dbms_output.put_line(''done''); end;');
   file_meta_data_api.insert_row(
     i_keyword => 'tsv example',
     i_filename_match_like => '*.tsv',

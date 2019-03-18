@@ -25,11 +25,10 @@ column pldi_path_name new_value pldi_path_name noprint
 select coalesce('&&1','PLDI') pldi_user,
        coalesce('&&2','pldi') pldi_password,
        coalesce('&&3','PLDI_FILES') pldi_directory,
-       coalesce('&&4','/media/sf_debora') pldi_path_name
+       coalesce('&&4','/opt/ora_files') pldi_path_name
   from dual;
 
 prompt Create user and directory...
---@@source/create_user.sql pldi pldi &&pldi_directory &&pldi_path_name
 @@source/create_user.sql &&pldi_user &&pldi_password &&pldi_directory &&pldi_path_name
 prompt ...done!
 
@@ -44,7 +43,7 @@ prompt Create tables...
 prompt ...done!
 
 prompt Create types, packages and views...
-@@source/utils.pks
+@@source/utils/utils.pks
 @@source/api/file_adapter_data_api.pks
 @@source/api/file_raw_data_api.pks
 @@source/api/file_meta_data_api.pks
@@ -53,14 +52,14 @@ prompt Create types, packages and views...
 @@source/api/file_raw_data_api.pkb
 @@source/api/file_meta_data_api.pkb
 @@source/api/file_text_data_api.pkb
-@@source/utils.pkb &&pldi_directory
+@@source/utils/utils.pkb &&pldi_directory
 @@tests/utils_test.pks
 @@tests/utils_test.pkb
 @@source/adapter/file_adapter_data_imp_1.pks
 @@source/adapter/file_adapter_data_imp_2.pks
 @@source/adapter/file_adapter_data_imp_1.pkb
 @@source/adapter/file_adapter_data_imp_2.pkb
-@@source/file_content_v.vw
+@@source/utils/file_content_v.vw
 prompt ...done!
 
 prompt Create sample data...
