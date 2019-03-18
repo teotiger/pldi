@@ -29,17 +29,17 @@ select coalesce('&&1','PLDI') pldi_user,
   from dual;
 
 prompt Create user and directory...
-@@source/create_user.sql &&pldi_user &&pldi_password &&pldi_directory &&pldi_path_name
+@source/create_user.sql &&pldi_user &&pldi_password &&pldi_directory &&pldi_path_name
 prompt ...done!
 
 -- switching to new schema
 alter session set current_schema = &&pldi_user;
 
 prompt Create tables...
-@@source/table/file_adapter_data.sql
-@@source/table/file_raw_data.sql
-@@source/table/file_meta_data.sql
-@@source/table/file_text_data.sql
+@source/table/file_adapter_data.sql
+@source/table/file_raw_data.sql
+@source/table/file_meta_data.sql
+@source/table/file_text_data.sql
 prompt ...done!
 
 prompt Create types, packages and views...
