@@ -16,7 +16,8 @@ as
     c010,
     frd.filename,
     ftd.timestamp_insert,
-    frd_id
+    frd_id,
+    ftd_id
   from
     file_text_data ftd
     join file_raw_data frd using ( frd_id )

@@ -3,12 +3,12 @@ as
 
   -- Add new rows to FILE_TEXT_DATA.
   procedure insert_rows (
-    i_filename  in file_raw_data.filename%type);
+    i_frd_id  in file_raw_data.frd_id%type);
     
-  -- Add new rows to FILE_TEXT_DATA and returns the PLSQL code to execute after.
+  -- Add new rows to FILE_TEXT_DATA and returns the corresponding FTD_ID.
   function insert_rows (
       i_frd_id  in file_raw_data.frd_id%type)
-    return varchar2;
+    return number;
     
 end file_text_data_api;
 /

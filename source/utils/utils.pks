@@ -2,6 +2,9 @@ create or replace package utils authid definer
 as
 
   -- This function returns the default directory.
+  function version return varchar2;
+
+  -- This function returns the default directory.
   function default_directory 
     return varchar2 deterministic;
   

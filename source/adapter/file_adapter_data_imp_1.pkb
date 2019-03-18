@@ -5,7 +5,8 @@ as
     i_frd_id        in file_raw_data.frd_id%type,
     i_blob          in file_raw_data.blob_value%type,
     i_fmd_id        in file_meta_data.fmd_id%type,
-    i_character_set in file_meta_data.character_set%type)
+    i_character_set in file_meta_data.character_set%type,
+    i_ftd_id        in file_text_data.ftd_id%type)
   is
     l_blob blob;
     l_clob clob;
@@ -38,7 +39,7 @@ as
           arr2 := utils.split_varchar2(arr(i), l_meta.delimiter, l_meta.enclosure);
 --          arr2 := apex_util.string_to_table(arr(i), l_meta.delimiter);
           
-         
+          l_row.ftd_id := i_ftd_id;
           l_row.frd_id := i_frd_id;--  ,--          number(10, 0),
           l_row.fmd_id := i_fmd_id;--  ,--         number(5, 0),
           l_row.timestamp_insert := systimestamp; -- ,--timestamp not null,
@@ -102,10 +103,6 @@ as
     );
     
     commit;
-    
-    if l_meta.plsql_after_processing is not null then
-      execute immediate l_meta.plsql_after_processing using i_frd_id;
-    end if;
     
   end insert_file_text_data;
 --------------------------------------------------------------------------------

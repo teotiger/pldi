@@ -17,7 +17,7 @@ Download the `master.zip`archive and install **PLDI** with SQL*Plus or SQL Devel
 If you use Linux, you can do all in one command:
 
 ```bash
-wget https://github.com/teotiger/pldi/archive/master.zip` && unzip master.zip && cd pldi-master && sqllus "sys/supersecretpassword@localhost as sysdba" @install.sql
+wget https://github.com/teotiger/pldi/archive/master.zip` && unzip master.zip && cd pldi-master && sqlplus "sys/supersecretpassword@localhost as sysdba" @install.sql
 ```
 
 Use the `install.sql` file with or without the following parameters:
@@ -25,9 +25,14 @@ Use the `install.sql` file with or without the following parameters:
 1. pldi_user (Default: **pldi**)
 2. pldi_password Default: **pldi**)
 3. pldi_directory (Default: **PLDI_FILES**)
-4. pldi_path_name (Default: **/media/sf_debora**)
+4. pldi_path_name (Default: **/opt/ora_files**)
 
-If you already have a user and directory, use the `install_headless.sql` and only pass the name of the directory as first parameter (mandatory).
+If you already have a user and directory, use the `install_headless.sql` and only pass the name of the directory as first parameter (mandatory). You can directly use the schema user and do not connect as SYSDBA. The priviliges you need are:
+
+```plsql
+CREATE ANY PROCEDURE;
+CREATE ANY PROCEDURE;
+```
 
 ## Tests
 
@@ -44,13 +49,26 @@ select * from table(ut.run());
 
 ## Usage / API
 
-After successfull installation and after passing all tests define your meta data by using the `FILE_META_DATA_API` package. To read for example every TAB delimited file use:
+After successful installation define your meta data by using the `FILE_META_DATA_API` package. To read for example every TAB delimited file use:
 ```plsql
-begin
-
-end;
+exec file_meta_data_api.insert_row(
+    i_keyword => 'tsv example',
+    i_filename_match_like => '*.tsv',
+    i_filename_match_regexp_like => null,
+    i_fad_id => 1,
+    i_character_set => 'UTF-8',
+    i_delimiter => chr(9),
+    i_enclosure => null,
+    i_plsql_after_processing => null);
 ```
 
+See `example_usage.sql` for more information.
+
+## Data Model
+
+![Data Model](images/data_model_pldi.jpg)
+
+Every table has it own api package for DML operations.
 
 ## Credits
 

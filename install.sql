@@ -63,7 +63,7 @@ prompt Create types, packages and views...
 prompt ...done!
 
 prompt Create sample data...
-@@source/sample_data.sql
+@@source/create_sample_data.sql
 prompt ...done!
 
 exit

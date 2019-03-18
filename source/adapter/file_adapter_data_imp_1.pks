@@ -9,7 +9,8 @@ as
     i_frd_id        in file_raw_data.frd_id%type,
     i_blob          in file_raw_data.blob_value%type,
     i_fmd_id        in file_meta_data.fmd_id%type,
-    i_character_set in file_meta_data.character_set%type);
+    i_character_set in file_meta_data.character_set%type,
+    i_ftd_id        in file_text_data.ftd_id%type);
 
 end file_adapter_data_imp_1;
 /

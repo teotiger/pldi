@@ -1,4 +1,5 @@
 create table file_text_data (
+  ftd_id             number(10, 0),
   frd_id             number(10, 0),
   fmd_id             number(5, 0),
   timestamp_insert   timestamp not null,
@@ -21,4 +22,7 @@ create table file_text_data (
   constraint file_text_data_fmd_id_fk foreign key ( fmd_id )
     references file_meta_data ( fmd_id )
 );
-create index file_text_data_frd_id_idx on file_text_data (frd_id);
+-------
+create sequence file_text_data_seq 
+  minvalue 1 start with 1 increment by 1 cache 8;
+create index file_text_data_ftd_id_idx on file_text_data (ftd_id);

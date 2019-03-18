@@ -1,27 +1,15 @@
---select * from user_objects order by status;
---
 set serveroutput on;
 
 begin
   utils.processing_file('countries.csv');
+  file_text_data_api.insert_rows(1);
+  utils.processing_file('Eviction_Notices.csv');
+  utils.processing_file('tsv.tsv');
+  utils.processing_file('unemployment.csv');
 end;
 /
 
-begin
-  file_raw_data_api.insert_row('countries.csv');
-  file_text_data_api.insert_rows('countries.csv');
-
-  file_raw_data_api.insert_row('unemployment.csv');
-  file_text_data_api.insert_rows('unemployment.csv');
-
-  file_raw_data_api.insert_row('tsv.tsv');
-  file_text_data_api.insert_rows('tsv.tsv');
-end;
-/
-
-select * from file_content_v;
-
-select * from file_text_data;
+select * from file_text_data order by 1,2;
 select * from file_raw_data;
 select * from file_meta_data;
 

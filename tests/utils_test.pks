@@ -2,10 +2,12 @@ create or replace package utils_test authid definer as
 
   -- %suite(UnitTests for di_util package)
 
-  -- %test(Error Code 1 - Non-existent directory)
+  -- %test(Non-existent directory)
+  -- %throws(-22285)
   procedure insert_file_non_existing_dir;
 
-  -- %test(Error Code 2 - No such file)
+  -- %test(No such file)
+  -- %throws(-22288)
   procedure insert_file_non_existing_file;  
 
 end utils_test;
