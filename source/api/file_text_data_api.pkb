@@ -35,7 +35,7 @@ as
     l_sql:='begin file_adapter_data_imp_'||l_fmd_row.fad_id||
            '.insert_file_text_data(:0, :1, :2, :3, :4); end;';
     execute immediate l_sql using l_frd_row.frd_id, l_frd_row.blob_value,
-                                  l_fmd_row.fmd_id, l_fmd_row.character_set,
+                                  l_fmd_row.fmd_id, l_fmd_row.ora_charset_id,
                                   l_ftd_id;
 
     return l_ftd_id;
@@ -43,6 +43,16 @@ as
   exception when no_data_found then
     return null;
   end insert_rows;
+--------------------------------------------------------------------------------
+  procedure delete_rows (
+    i_ftd_id in file_text_data.ftd_id%type)
+  is
+    l_ftd_id file_text_data.ftd_id%type not null:=i_ftd_id;
+  begin
+    delete file_text_data
+     where ftd_id=l_ftd_id;
+    commit;
+  end delete_rows;
 --------------------------------------------------------------------------------
 end file_text_data_api;
 /

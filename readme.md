@@ -4,34 +4,34 @@
 
 With **PL**/SQL **D**ata **I**ntegration you can read every binary file and - with the corresponding adapter - transform the (textual) data into a single table for further usage.
 
-Core features are:
+Main features from **PLDI**:
 
-- binary files can be read from a directory object or, in the case of textual data, simply pass a CLOB parameter
+- binary files in 
+- binary files can be read from a directory object, from a big string (CLOB parameter) or direct
 - adapter for CSV ("Character"-Delimited-Values) comes out of the box
 - you can define a PL/SQL statement to execute after the file processing
 
+
+
 ## Installation
 
-Download the `master.zip`archive and install **PLDI** with SQL*Plus or SQL Developer (as SYSDBA!). 
+Download the `master.zip`archive and install **PLDI** with SQL*Plus or SQL Developer.
 
-If you use Linux, you can do all in one command:
+If you have already a directory object and user created, connect with the user and run the `install_headless.sql` file (pldi_directory is the only possible parameter).
+
+If you do not have  a directory object and user created, connect as SYSDBA and run the `install.sql` file.
+
+You can pass the following parameters:
+
+1. pldi_directory (Default: **PLDI_FILES**)
+2. pldi_path_name (Default: **/opt/ora_files**)
+3. pldi_user (Default: **pldi**)
+4. pldi_password Default: **pldi**)
+
+Here is an example in Linux doing the whole installation in one command:
 
 ```bash
 wget https://github.com/teotiger/pldi/archive/master.zip` && unzip master.zip && cd pldi-master && sqlplus "sys/supersecretpassword@localhost as sysdba" @install.sql
-```
-
-Use the `install.sql` file with or without the following parameters:
-
-1. pldi_user (Default: **pldi**)
-2. pldi_password Default: **pldi**)
-3. pldi_directory (Default: **PLDI_FILES**)
-4. pldi_path_name (Default: **/opt/ora_files**)
-
-If you already have a user and directory, use the `install_headless.sql` and only pass the name of the directory as first parameter (mandatory). You can directly use the schema user and do not connect as SYSDBA. The priviliges you need are:
-
-```plsql
-CREATE ANY PROCEDURE;
-CREATE ANY PROCEDURE;
 ```
 
 ## Tests
@@ -90,4 +90,5 @@ The next features will be:
 
 ## Version History
 
+Version 0.9.1 – March 26, 2019
 Version 0.9 – March 18, 2019

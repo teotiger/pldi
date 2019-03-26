@@ -2,7 +2,7 @@ create or replace package utils authid definer
 as
 
   -- This function returns the default directory.
-  function version return varchar2;
+  function version return varchar2 deterministic;
 
   -- This function returns the default directory.
   function default_directory 
@@ -14,7 +14,7 @@ as
   function blob_to_clob (
       i_blob_value in blob,
       i_charset_id in number)
-    return clob;
+    return clob deterministic;
   
   -- This function converts the character large object to a binary large object.
   -- @The value of the CLOB.
@@ -22,7 +22,7 @@ as
   function clob_to_blob (
       i_clob_value in clob,
       i_charset_id in number)
-    return blob;
+    return blob deterministic;
 
   -- Split the argument into several parts.
   -- @The input string.
@@ -32,9 +32,7 @@ as
       i_string_value in varchar2,
       i_delimiter    in varchar2,
       i_enclosure    in varchar2)
---    return varchar2_tt deterministic;
-    return sys.ora_mining_varchar2_nt deterministic;-- pipelined;
---    return sys.odcivarchar2list pipelined;
+    return sys.ora_mining_varchar2_nt deterministic;
     
   -- This procedure insert a file into FILE_RAW_DATA and then tries to extract
   -- the content to FILE_TEXT_DATA.

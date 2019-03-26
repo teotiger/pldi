@@ -71,7 +71,8 @@ as
   is
     l_fmd_id file_meta_data.fmd_id%type not null:=i_fmd_id;
   begin
-    delete from file_meta_data where fmd_id=l_fmd_id;
+    delete file_meta_data 
+     where fmd_id=l_fmd_id;
     commit;
   end delete_row;  
 --------------------------------------------------------------------------------

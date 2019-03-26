@@ -1,12 +1,12 @@
 create or replace package body utils
 as
 --------------------------------------------------------------------------------
-  function version return varchar2 
+  function version return varchar2 deterministic
   is
-    c_version constant varchar2(8 char) := 'v0.9.0';
+    c_version constant varchar2(8 char) := 'v0.9.1';
   begin
     return c_version;
-  end;
+  end version;
 -------------------------------------------------------------------------------- 
   function default_directory 
     return varchar2 deterministic
@@ -19,23 +19,23 @@ as
   function blob_to_clob (
       i_blob_value in blob,
       i_charset_id in number)
-    return clob
+    return clob deterministic
   is
     l_blob_value blob not null:=i_blob_value;
     l_charset_id number not null:=i_charset_id;
     l_clob clob;
     l_dest_offset integer := 1;
     l_src_offset integer := 1;
-    l_lang_context integer := dbms_lob.default_lang_ctx;
+    l_lang_context integer := sys.dbms_lob.default_lang_ctx;
     l_warning  integer;
   begin
-    dbms_lob.createtemporary(
+    sys.dbms_lob.createtemporary(
       lob_loc => l_clob,
       cache => true);
-    dbms_lob.converttoclob(
+    sys.dbms_lob.converttoclob(
       dest_lob => l_clob, 
       src_blob => l_blob_value,
-      amount => dbms_lob.lobmaxsize,
+      amount => sys.dbms_lob.lobmaxsize,
       dest_offset => l_dest_offset,
       src_offset => l_src_offset,
       blob_csid => l_charset_id,
@@ -47,20 +47,20 @@ as
   function clob_to_blob (
       i_clob_value in clob,
       i_charset_id in number)
-    return blob 
+    return blob deterministic
   is
     l_clob_value clob not null:=i_clob_value;
     l_charset_id number not null:=i_charset_id;
     l_blob blob; 
     l_dest_offset integer := 1;
     l_src_offset integer := 1;
-    l_lang_context integer := dbms_lob.default_lang_ctx;
+    l_lang_context integer := sys.dbms_lob.default_lang_ctx;
     l_warning  integer;
   begin
-    dbms_lob.createtemporary(
+    sys.dbms_lob.createtemporary(
       lob_loc => l_blob,
       cache => true); 
-    dbms_lob.converttoblob(
+    sys.dbms_lob.converttoblob(
       dest_lob => l_blob,
       src_clob => l_clob_value,
       amount => length(l_clob_value),
@@ -76,22 +76,20 @@ as
       i_string_value in varchar2,
       i_delimiter    in varchar2,
       i_enclosure    in varchar2)
---    return varchar2_tt deterministic;
-    return sys.ora_mining_varchar2_nt --pipelined
+    return sys.ora_mining_varchar2_nt deterministic
   is
---    return sys.odcivarchar2list pipelined;
---  https://raw.githubusercontent.com/mortenbra/alexandria-plsql-utils/master/ora/csv_util_pkg.pkb
-  p_separator varchar2(1) := i_delimiter;
-    l_returnvalue      sys.ora_mining_varchar2_nt := sys.ora_mining_varchar2_nt();--varchar2_tt     := varchar2_tt();
+-->  https://raw.githubusercontent.com/mortenbra/alexandria-plsql-utils/master/ora/csv_util_pkg.pkb
+    p_separator varchar2(1 char) := i_delimiter;
+    l_returnvalue      sys.ora_mining_varchar2_nt := sys.ora_mining_varchar2_nt();
     l_length           pls_integer     := length(i_string_value);
     l_idx              binary_integer  := 1;
     l_quoted           boolean         := false;  
-    l_quote  constant  varchar2(1)     := i_enclosure;--'"';
+    l_quote  constant  varchar2(1 char) := i_enclosure;
     l_start            boolean := true;
     l_current          varchar2(1 char);
     l_next             varchar2(1 char);
     l_position         pls_integer := 1;
-    l_current_column   varchar2(32767);
+    l_current_column   varchar2(32767 char);
     
     --Set the start flag, save our column value
     procedure save_column is
@@ -202,9 +200,7 @@ as
     end loop ;
     
     return l_returnvalue;
-  end;
-  
-  
+  end split_varchar2;
 --------------------------------------------------------------------------------
   procedure processing_file (
       i_filename in varchar2)
@@ -214,17 +210,16 @@ as
     l_plsql    file_meta_data.plsql_after_processing%type;
   begin
     l_ftd_id:=file_text_data_api.insert_rows(
-                i_frd_id => file_raw_data_api.insert_row(l_filename)
+                i_frd_id => file_raw_data_api.insert_row(i_filename=>l_filename)
               );
 
-    select plsql_after_processing
+    select max(plsql_after_processing)
       into l_plsql
       from file_meta_data fmd 
      where l_filename like replace(fmd.filename_match_like, '*', '%')
         or regexp_like(l_filename, fmd.filename_match_regexp_like);
 
     if l_plsql is not null and l_ftd_id is not null then
-      -- ORA-01006: bind variable does not exist => test!
       execute immediate replace(l_plsql, '$FTD_ID', l_ftd_id);
     end if;
   end processing_file;

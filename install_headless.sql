@@ -7,28 +7,12 @@ set verify off
 set feedback off
 
 column 1 new_value 1 noprint
-column 2 new_value 2 noprint
-column 3 new_value 3 noprint
-column 4 new_value 4 noprint
 
-select null as "1", null as "2", null as "3", null as "4" from dual where 1=0;
+select null as "1" from dual where 1=0;
 
 column pldi_directory new_value pldi_directory noprint
-column pldi_path_name new_value pldi_path_name noprint
-column pldi_user      new_value pldi_user      noprint
-column pldi_password  new_value pldi_password  noprint
 
-select coalesce('&&1','PLDI_FILES') pldi_directory,
-       coalesce('&&2','/opt/ora_files') pldi_path_name,
-       coalesce('&&3','PLDI') pldi_user,
-       coalesce('&&4','pldi') pldi_password
-  from dual;
-
-prompt Create user and directory...
-@source/create_directory_and_user.sql &&pldi_directory &&pldi_path_name &&pldi_user &&pldi_password
-prompt ...done!
-
-alter session set current_schema = &&pldi_user;
+select coalesce('&&1','PLDI_FILES') pldi_directory from dual;
 
 prompt Create tables...
 @source/table/file_adapter_data.sql

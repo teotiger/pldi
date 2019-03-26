@@ -2,7 +2,7 @@ create table file_text_data (
   ftd_id             number(10, 0),
   frd_id             number(10, 0),
   fmd_id             number(5, 0),
-  timestamp_insert   timestamp not null,
+  timestamp_insert   timestamp default systimestamp not null,
   sheet_id           number(2, 0),
   sheet_name         varchar2(255 char),
   row_number         number(8, 0) not null,
@@ -16,13 +16,53 @@ create table file_text_data (
   c008               varchar2(4000 char),
   c009               varchar2(4000 char),
   c010               varchar2(4000 char),
-  -- combined PK?!?                                                             -- TODO
+  c011               varchar2(4000 char),
+  c012               varchar2(4000 char),
+  c013               varchar2(4000 char),
+  c014               varchar2(4000 char),
+  c015               varchar2(4000 char),
+  c016               varchar2(4000 char),
+  c017               varchar2(4000 char),
+  c018               varchar2(4000 char),
+  c019               varchar2(4000 char),
+  c020               varchar2(4000 char),
+  c021               varchar2(4000 char),
+  c022               varchar2(4000 char),
+  c023               varchar2(4000 char),
+  c024               varchar2(4000 char),
+  c025               varchar2(4000 char),
+  c026               varchar2(4000 char),
+  c027               varchar2(4000 char),
+  c028               varchar2(4000 char),
+  c029               varchar2(4000 char),
+  c030               varchar2(4000 char),
+  c031               varchar2(4000 char),
+  c032               varchar2(4000 char),
+  c033               varchar2(4000 char),
+  c034               varchar2(4000 char),
+  c035               varchar2(4000 char),
+  c036               varchar2(4000 char),
+  c037               varchar2(4000 char),
+  c038               varchar2(4000 char),
+  c039               varchar2(4000 char),
+  c040               varchar2(4000 char),
+  c041               varchar2(4000 char),
+  c042               varchar2(4000 char),
+  c043               varchar2(4000 char),
+  c044               varchar2(4000 char),
+  c045               varchar2(4000 char),
+  c046               varchar2(4000 char),
+  c047               varchar2(4000 char),
+  c048               varchar2(4000 char),
+  c049               varchar2(4000 char),
+  c050               varchar2(4000 char),
   constraint file_text_data_frd_id_fk foreign key ( frd_id )
     references file_raw_data ( frd_id ),
   constraint file_text_data_fmd_id_fk foreign key ( fmd_id )
     references file_meta_data ( fmd_id )
 );
--------
+------
 create sequence file_text_data_seq 
   minvalue 1 start with 1 increment by 1 cache 8;
+------
 create index file_text_data_ftd_id_idx on file_text_data (ftd_id);
