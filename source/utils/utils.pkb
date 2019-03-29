@@ -11,7 +11,7 @@ as
   function default_directory 
     return varchar2 deterministic
   is
-    c_dir constant varchar2(30 char):='PLDI_FILES';
+    c_dir constant varchar2(30 char):='&pldi_directory.';
   begin
     return c_dir;
   end default_directory;

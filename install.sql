@@ -5,6 +5,7 @@ prompt ************************
 set echo off
 set verify off
 set feedback off
+set define on
 
 column 1 new_value 1 noprint
 column 2 new_value 2 noprint
