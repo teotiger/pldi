@@ -3,7 +3,7 @@ as
 --------------------------------------------------------------------------------
   function version return varchar2 deterministic
   is
-    c_version constant varchar2(8 char) := 'v0.9.1';
+    c_version constant varchar2(8 char) := 'v0.9.2';
   begin
     return c_version;
   end version;

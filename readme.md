@@ -2,16 +2,13 @@
 
 ## Introduction
 
-With **PL**/SQL **D**ata **I**ntegration you can read every binary file and - with the corresponding adapter - transform the (textual) data into a single table for further usage.
+With **PL**/SQL **D**ata **I**ntegration it is possible to read in Oracle every binary file and - with the corresponding adapter - transform the (textual) data into a single table for further usage.
 
 Main features from **PLDI**:
 
-- binary files in 
-- binary files can be read from a directory object, from a big string (CLOB parameter) or direct
+- binary files can be read from a directory object, from a huge string (CLOB) or from another table (for example **apex_collections**)
 - adapter for CSV ("Character"-Delimited-Values) comes out of the box
-- you can define a PL/SQL statement to execute after the file processing
-
-
+- define a PL/SQL statement to execute after the file processing ("push" info about file processing)
 
 ## Installation
 
@@ -90,5 +87,8 @@ The next features will be:
 
 ## Version History
 
+Version 0.9.2 – April 9, 2019
+
 Version 0.9.1 – March 26, 2019
+
 Version 0.9 – March 18, 2019
