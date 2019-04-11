@@ -39,5 +39,3 @@ prompt Create types, packages and views...
 @@source/adapter/file_adapter_data_imp_1.pkb
 @@source/utils/file_content_v.vw
 prompt ...done!
-
-exit

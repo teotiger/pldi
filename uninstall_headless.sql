@@ -22,5 +22,3 @@ begin
 end;
 /
 prompt ...done!
-
-exit

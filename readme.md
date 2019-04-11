@@ -28,7 +28,7 @@ You can pass the following parameters:
 Here is an example in Linux doing the whole installation in one command:
 
 ```bash
-wget https://github.com/teotiger/pldi/archive/master.zip` && unzip master.zip && cd pldi-master && sqlplus "sys/supersecretpassword@localhost as sysdba" @install.sql
+wget https://github.com/teotiger/pldi/archive/master.zip && unzip master.zip && cd pldi-master && sqlplus "sys/supersecretpassword@localhost as sysdba" @install.sql
 ```
 
 ## Tests
@@ -87,7 +87,10 @@ The next features will be:
 
 ## Version History
 
-Version 0.9.2 – April 9, 2019
+Version 0.9.2 – April 11, 2019
+
+- columns extended from 50 to 200
+- bugfix in package FILE_ADAPTER_DATA_IMP_1
 
 Version 0.9.1 – March 26, 2019
 
