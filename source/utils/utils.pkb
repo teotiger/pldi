@@ -3,7 +3,7 @@ as
 --------------------------------------------------------------------------------
   function version return varchar2 deterministic
   is
-    c_version constant varchar2(8 char) := 'v0.9.2';
+    c_version constant varchar2(8 char) := 'v0.9.5';
   begin
     return c_version;
   end version;
@@ -17,12 +17,12 @@ as
   end default_directory;
 --------------------------------------------------------------------------------
   function blob_to_clob (
-      i_blob_value in blob,
-      i_charset_id in number)
+      i_blob_value     in blob,
+      i_ora_charset_id in number)
     return clob deterministic
   is
     l_blob_value blob not null:=i_blob_value;
-    l_charset_id number not null:=i_charset_id;
+    l_ora_charset_id number not null:=i_ora_charset_id;
     l_clob clob;
     l_dest_offset integer := 1;
     l_src_offset integer := 1;
@@ -38,19 +38,19 @@ as
       amount => sys.dbms_lob.lobmaxsize,
       dest_offset => l_dest_offset,
       src_offset => l_src_offset,
-      blob_csid => l_charset_id,
+      blob_csid => l_ora_charset_id,
       lang_context => l_lang_context,
       warning => l_warning);
     return l_clob;
   end blob_to_clob;  
 --------------------------------------------------------------------------------
   function clob_to_blob (
-      i_clob_value in clob,
-      i_charset_id in number)
+      i_clob_value     in clob,
+      i_ora_charset_id in number)
     return blob deterministic
   is
     l_clob_value clob not null:=i_clob_value;
-    l_charset_id number not null:=i_charset_id;
+    l_ora_charset_id number not null:=i_ora_charset_id;
     l_blob blob; 
     l_dest_offset integer := 1;
     l_src_offset integer := 1;
@@ -66,7 +66,7 @@ as
       amount => length(l_clob_value),
       dest_offset => l_dest_offset,
       src_offset => l_src_offset,
-      blob_csid => l_charset_id,
+      blob_csid => l_ora_charset_id,
       lang_context => l_lang_context,
       warning => l_warning);
     return l_blob;
@@ -216,8 +216,16 @@ as
     select max(plsql_after_processing)
       into l_plsql
       from file_meta_data fmd 
-     where l_filename like replace(fmd.filename_match_like, '*', '%')
-        or regexp_like(l_filename, fmd.filename_match_regexp_like);
+     where l_filename like case when fmd.filter_is_regular_expression=0 
+                            then replace(fmd.filename_match_filter, '*', '%')
+                            else l_filename
+                           end
+       and regexp_like(l_filename, case when fmd.filter_is_regular_expression=1 
+                                    then fmd.filename_match_filter 
+                                    else l_filename
+                                   end);
+--     where l_filename like replace(fmd.filename_match_like, '*', '%')
+--        or regexp_like(l_filename, fmd.filename_match_regexp_like);
 
     if l_plsql is not null and l_ftd_id is not null then
       execute immediate replace(l_plsql, '$FTD_ID', l_ftd_id);

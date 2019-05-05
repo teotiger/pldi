@@ -1,3 +1,6 @@
+categories.xlsx
+  https://github.com/MaxDesiatov/CoreXLSX/blob/master/Tests/CoreXLSXTests/categories.xlsx
+
 countries.csv
   https://github.com/w3c/csvw/blob/gh-pages/primer/countries.csv 
 
@@ -6,6 +9,9 @@ Eviction_Notices.csv
 
 financial_sample.xlsx
   https://docs.microsoft.com/en-gb/power-bi/sample-financial-download
+
+sample-xlsx-file.xlsx
+  https://github.com/callicoder/java-read-write-excel-file-using-apache-poi/blob/master/sample-xlsx-file.xlsx
 
 tsv.tsv
   http://jkorpela.fi/tsv.tsv

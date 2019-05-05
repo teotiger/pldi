@@ -84,30 +84,28 @@ as
   end insert_row;
 --------------------------------------------------------------------------------
   procedure insert_row (
-    i_filename      in file_raw_data.filename%type,
-    i_plain_text    in clob,
-    i_character_set in file_meta_data.character_set%type)
+    i_filename        in file_raw_data.filename%type,
+    i_plain_text      in clob,
+    i_ora_charset_id  in file_meta_data.ora_charset_id%type)
   is
     l_frd_id file_raw_data.frd_id%type;
   begin
-    l_frd_id:=insert_row (i_filename, i_plain_text, i_character_set);
+    l_frd_id:=insert_row (i_filename, i_plain_text, i_ora_charset_id);
   end insert_row;
 --------------------------------------------------------------------------------
   function insert_row (
-      i_filename      in file_raw_data.filename%type,
-      i_plain_text    in clob,
-      i_character_set in file_meta_data.character_set%type)
+      i_filename        in file_raw_data.filename%type,
+      i_plain_text      in clob,
+      i_ora_charset_id  in file_meta_data.ora_charset_id%type)
     return number
   is
     c_hyphen constant varchar2(1 char):='-';
     l_filename file_raw_data.filename%type not null := i_filename;
     l_plain_text clob not null:=i_plain_text;
-    l_character_set file_meta_data.character_set%type not null := i_character_set;
-    l_ora_charset_id integer;
+    l_ora_charset_id file_meta_data.ora_charset_id%type not null := i_ora_charset_id;
     l_blob blob;    
     l_frd_id file_raw_data.frd_id%type;    
   begin
-    l_ora_charset_id:=nls_charset_id(replace(l_character_set,c_hyphen,null));
     l_blob:=utils.clob_to_blob(
       i_clob_value => l_plain_text,
       i_charset_id => l_ora_charset_id);

@@ -6,10 +6,13 @@ begin
   utils.processing_file('Eviction_Notices.csv');
   utils.processing_file('tsv.tsv');
   utils.processing_file('unemployment.csv');
+  utils.processing_file('categories.xlsx');
+  utils.processing_file('financial_sample.xlsx');
+  utils.processing_file('sample-xlsx-file.xlsx');
 end;
 /
 
-select * from file_text_data order by 1,2;
+select * from file_text_data order by 1, 2;
 select * from file_raw_data;
 select * from file_meta_data;
 

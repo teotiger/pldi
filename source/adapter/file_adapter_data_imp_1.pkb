@@ -2,11 +2,12 @@ create or replace package body file_adapter_data_imp_1
 as
 --------------------------------------------------------------------------------
   procedure insert_file_text_data(
-    i_frd_id      in file_raw_data.frd_id%type,
-    i_blob        in file_raw_data.blob_value%type,
-    i_fmd_id      in file_meta_data.fmd_id%type,
-    i_charset_id  in file_meta_data.ora_charset_id%type,
-    i_ftd_id      in file_text_data.ftd_id%type)
+    i_frd_id            in file_raw_data.frd_id%type,
+    i_fmd_id            in file_meta_data.fmd_id%type,
+    i_ftd_id            in file_text_data.ftd_id%type,
+    i_blob_value        in file_raw_data.blob_value%type,
+    i_ora_charset_id    in file_meta_data.ora_charset_id%type,
+    i_ora_charset_name  in file_meta_data.ora_charset_name%type)
   is
     l_meta file_meta_data%rowtype;
     l_ridx simple_integer:=0;
@@ -283,8 +284,8 @@ as
      where fmd_id=i_fmd_id;  
  
     dump_clob(
-      i_plain_text => utils.blob_to_clob(i_blob_value => i_blob,
-                                         i_charset_id => i_charset_id)
+      i_plain_text => utils.blob_to_clob(i_blob_value => i_blob_value,
+                                         i_ora_charset_id => i_ora_charset_id)
     );    
     commit;
     

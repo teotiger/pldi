@@ -27,16 +27,25 @@ as
     
     select *
       into l_fmd_row
-      from file_meta_data fmd 
-     where l_frd_row.filename like replace(fmd.filename_match_like, '*', '%')
-        or regexp_like(l_frd_row.filename, fmd.filename_match_regexp_like);
+      from file_meta_data fmd
+     where l_frd_row.filename like case when fmd.filter_is_regular_expression=0 
+                                    then replace(fmd.filename_match_filter, '*', '%')
+                                    else l_frd_row.filename
+                                   end
+       and regexp_like(l_frd_row.filename, case when fmd.filter_is_regular_expression=1 
+                                            then fmd.filename_match_filter 
+                                            else l_frd_row.filename
+                                           end);
         
     l_ftd_id := file_text_data_seq.nextval;    
     l_sql:='begin file_adapter_data_imp_'||l_fmd_row.fad_id||
-           '.insert_file_text_data(:0, :1, :2, :3, :4); end;';
-    execute immediate l_sql using l_frd_row.frd_id, l_frd_row.blob_value,
-                                  l_fmd_row.fmd_id, l_fmd_row.ora_charset_id,
-                                  l_ftd_id;
+           '.insert_file_text_data(:1, :2, :3, :4, :5, :6); end;';
+    execute immediate l_sql using l_frd_row.frd_id,
+                                  l_fmd_row.fmd_id,
+                                  l_ftd_id,
+                                  l_frd_row.blob_value,
+                                  l_fmd_row.ora_charset_id,
+                                  l_fmd_row.ora_charset_name;                                  
 
     return l_ftd_id;
   

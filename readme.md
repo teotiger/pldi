@@ -8,7 +8,7 @@ Main features from **PLDI**:
 
 - binary files can be read from a directory object, from a huge string (CLOB) or from another table (for example **apex_collections**)
 - adapter for CSV ("Character"-Delimited-Values) comes out of the box
-- define a PL/SQL statement to execute after the file processing ("push" info about file processing)
+- it is possible to define a PL/SQL statement to execute after the file processing ("push" info about file processing)
 
 ## Installation
 
@@ -65,31 +65,30 @@ See `example_usage.sql` for more information.
 
 ![Data Model](images/data_model_pldi.jpg)
 
-Every table has it own api package for DML operations.
+Every table has its own api package for DML operations.
 
 ## Credits
 
 - Alexandria PL/SQL Utility Library https://github.com/mortenbra/alexandria-plsql-utils
 - Blogpost from Carsten Czarski https://blogs.oracle.com/apex/easy-xlsx-parser:-just-with-sql-and-plsql
+- Anton Scheffer http://technology.amis.nl/blog (code found here https://github.com/yallie/as_zip)
 - OraOpenSource http://www.oraopensource.com/
 
 ## License
 
 PLDI is released under the [MIT license](https://github.com/teotiger/pldi/blob/master/license.txt).
 
-## ToDo / Roadmap
-
-The next features will be: 
-- adapter for XLSX
-- more Unit Tests
-- optimize CSV parser (with benchmark)
-- ....
-
 ## Version History
+
+Version 0.9.5 - May 5, 2019
+
+- adapter for excel files (xlsx) introduced
+- file_adapter_data_imp_* signature extended and (order) changed
+- in table FILE_META_DATA columns changed (`FILENAME_MATCH_FILTER` and `FILTER_IS_REGULAR_EXPRESSION` replaces `FILENAME_MATCH_LIKE` and `FILENAME_MATCH_REGEXP_LIKE`, `CHARACTER_SET` is changed to `ORA_CHARSET_NAME`)
 
 Version 0.9.2 – April 11, 2019
 
-- columns extended from 50 to 200
+- in table FILE_TEXT_DATA columns extended from 50 to 200
 - bugfix in package FILE_ADAPTER_DATA_IMP_1
 
 Version 0.9.1 – March 26, 2019

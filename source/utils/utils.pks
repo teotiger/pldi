@@ -1,7 +1,7 @@
 create or replace package utils authid definer 
 as
 
-  -- This function returns the default directory.
+  -- This function returns the current version.
   function version return varchar2 deterministic;
 
   -- This function returns the default directory.
@@ -10,18 +10,18 @@ as
   
   -- This function converts the binary large object to a character large object.
   -- @The value of the BLOB.
-  -- @The (Oracle) character set ID number corresponding to character set name.
+  -- @The Oracle character set ID number corresponding to character set name.
   function blob_to_clob (
-      i_blob_value in blob,
-      i_charset_id in number)
+      i_blob_value     in blob,
+      i_ora_charset_id in number)
     return clob deterministic;
   
   -- This function converts the character large object to a binary large object.
   -- @The value of the CLOB.
-  -- @The (Oracle) character set ID number corresponding to character set name.
+  -- @The Oracle character set ID number corresponding to character set name.
   function clob_to_blob (
-      i_clob_value in clob,
-      i_charset_id in number)
+      i_clob_value     in clob,
+      i_ora_charset_id in number)
     return blob deterministic;
 
   -- Split the argument into several parts.
