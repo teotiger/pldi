@@ -3,7 +3,7 @@ as
 --------------------------------------------------------------------------------
   function version return varchar2 deterministic
   is
-    c_version constant varchar2(8 char) := 'v0.9.5';
+    c_version constant varchar2(8 char) := 'v0.9.6';
   begin
     return c_version;
   end version;
@@ -224,11 +224,9 @@ as
                                     then fmd.filename_match_filter 
                                     else l_filename
                                    end);
---     where l_filename like replace(fmd.filename_match_like, '*', '%')
---        or regexp_like(l_filename, fmd.filename_match_regexp_like);
 
     if l_plsql is not null and l_ftd_id is not null then
-      execute immediate replace(l_plsql, '$FTD_ID', l_ftd_id);
+      execute immediate replace(l_plsql, '%FTD_ID%', l_ftd_id);
     end if;
   end processing_file;
 --------------------------------------------------------------------------------

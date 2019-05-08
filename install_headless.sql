@@ -35,7 +35,9 @@ prompt Create types, packages and views...
 @@source/utils/utils.pkb &&pldi_directory
 @@tests/utils_test.pks
 @@tests/utils_test.pkb
-@@source/adapter/file_adapter_data_imp_1.pks
-@@source/adapter/file_adapter_data_imp_1.pkb
+@@source/adapter/imp_1_file_adapter_data.pks
+@@source/adapter/imp_1_file_adapter_data.pkb
+@@source/adapter/imp_2_file_adapter_data.pks
+@@source/adapter/imp_2_file_adapter_data.pkb
 @@source/utils/file_content_v.vw
 prompt ...done!

@@ -2,17 +2,17 @@
 
 ## Introduction
 
-With **PL**/SQL **D**ata **I**ntegration it is possible to read in Oracle every binary file and - with the corresponding adapter - transform the (textual) data into a single table for further usage.
+With **PL**/SQL **D**ata **I**ntegration it is possible to store files in a table and - with the corresponding adapter (package) - transform the data into a single table for further usage.
 
-Main features from **PLDI**:
+**PLDI** key features:
 
-- binary files can be read from a directory object, from a huge string (CLOB) or from another table (for example **apex_collections**)
-- adapter for CSV ("Character"-Delimited-Values) comes out of the box
-- it is possible to define a PL/SQL statement to execute after the file processing ("push" info about file processing)
+- adapter for CSV ("Character"-Delimited-Values) and XLSX (Microsoft Open XML) comes out of the box
+- every PL/SQL statement or block can be executed after the file processing call ("push" info about successful file processing)
+- to extract the data from a BLOB into a table, the default is reading the entire file from a directory object, but it is also possible to pass the BLOB directly from another table (for example **apex_collections**) or pass a big string (=CLOB)
 
 ## Installation
 
-Download the `master.zip`archive and install **PLDI** with SQL*Plus or SQL Developer.
+Download the `master.zip` archive and install **PLDI** with SQL*Plus or SQL Developer.
 
 If you have already a directory object and user created, connect with the user and run the `install_headless.sql` file (pldi_directory is the only possible parameter).
 
@@ -31,6 +31,26 @@ Here is an example in Linux doing the whole installation in one command:
 wget https://github.com/teotiger/pldi/archive/master.zip && unzip master.zip && cd pldi-master && sqlplus "sys/supersecretpassword@localhost as sysdba" @install.sql
 ```
 
+## Usage / API
+
+After successful installation define your meta data by using the `FILE_META_DATA_API` package. To read for example every TAB delimited file from your default directory (`select utils.default_directory from dual;`) use:
+```plsql
+begin
+  file_meta_data_api.insert_row(
+    i_keyword => 'tsv example',
+    i_filename_match_like => '*.tsv',
+    i_filename_match_regexp_like => null,
+    i_fad_id => 1,
+    i_character_set => 'UTF-8',
+    i_delimiter => chr(9),
+    i_enclosure => null,
+    i_plsql_after_processing => null);
+end;
+/
+```
+
+See `examples/example_usage.sql` and `examples/sample_data.sql` for more information.
+
 ## Tests
 
 PLDI is using [utPLSQL](https://github.com/utPLSQL/utPLSQL) for UnitTests.
@@ -43,23 +63,6 @@ exec ut.run();
 -- sql
 select * from table(ut.run());
 ```
-
-## Usage / API
-
-After successful installation define your meta data by using the `FILE_META_DATA_API` package. To read for example every TAB delimited file use:
-```plsql
-exec file_meta_data_api.insert_row(
-    i_keyword => 'tsv example',
-    i_filename_match_like => '*.tsv',
-    i_filename_match_regexp_like => null,
-    i_fad_id => 1,
-    i_character_set => 'UTF-8',
-    i_delimiter => chr(9),
-    i_enclosure => null,
-    i_plsql_after_processing => null);
-```
-
-See `example_usage.sql` for more information.
 
 ## Data Model
 
@@ -79,6 +82,12 @@ Every table has its own api package for DML operations.
 PLDI is released under the [MIT license](https://github.com/teotiger/pldi/blob/master/license.txt).
 
 ## Version History
+
+Version 0.9.6 - May 8, 2019
+
+- bugfix in csv adapter (irregular number of cells each row)
+- rename adapter packages
+- substitution variable FTD_ID (in `utils.processing_file`) changed from `$FTD_ID` to `%FTD_ID%` 
 
 Version 0.9.5 - May 5, 2019
 

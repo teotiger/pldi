@@ -1,4 +1,4 @@
-create or replace package file_adapter_data_imp_2 authid definer as
+create or replace package imp_2_file_adapter_data authid definer as
 --------------------------------------------------------------------------------
 -- This package ist heavily based on AS_ZIP from Anton Scheffer and the blogpost
 -- from Carsten  Czarski:
@@ -86,5 +86,5 @@ THE SOFTWARE.
       i_filename          in varchar2)
     return blob deterministic;
 
-end file_adapter_data_imp_2;
+end imp_2_file_adapter_data;
 /

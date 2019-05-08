@@ -1,4 +1,4 @@
-create or replace package body file_adapter_data_imp_1
+create or replace package body imp_1_file_adapter_data
 as
 --------------------------------------------------------------------------------
   procedure insert_file_text_data(
@@ -12,7 +12,6 @@ as
     l_meta file_meta_data%rowtype;
     l_ridx simple_integer:=0;
     l_rest varchar2(4000 char):='';
-    l_edge number;
     ---
     function trimit(i_str in varchar2) return varchar2 deterministic is
     begin
@@ -22,7 +21,7 @@ as
              end;
     end trimit;
     ---
-    procedure dump_varchar2(i_buffer in varchar2) 
+    procedure dump_varchar2(i_buffer in varchar2, i_is_part in boolean) 
     is
       c_eol constant varchar2(1 char):=chr(10);
       l_row_arr  sys.ora_mining_varchar2_nt;
@@ -37,12 +36,12 @@ as
         l_cell_arr := utils.split_varchar2(i_string_value => l_row_arr(i),
                                            i_delimiter => l_meta.delimiter,
                                            i_enclosure => l_meta.enclosure);
-        if i=1 then
-          l_edge:=l_cell_arr.count;
-        end if;
-        
-        if l_cell_arr.count=l_edge then
+
+        if i=l_row_arr.count and i_is_part then
+          l_rest := l_row_arr(i);
+        else
           l_ridx:=l_ridx+1;        
+          l_ftd_row:=null;
           l_ftd_row.ftd_id := i_ftd_id;
           l_ftd_row.frd_id := i_frd_id;
           l_ftd_row.fmd_id := i_fmd_id;
@@ -255,8 +254,6 @@ as
             end case;
           end loop cell_loop;
           insert into file_text_data values l_ftd_row;
-        else
-          l_rest := l_row_arr(i);
         end if;
       end loop row_loop;
     end dump_varchar2;
@@ -272,7 +269,7 @@ as
       loop
         sys.dbms_lob.read(i_plain_text, l_amount, l_offset, l_buffer);
         l_offset := l_offset + l_amount;
-        dump_varchar2(l_buffer);
+        dump_varchar2(l_buffer, l_offset < l_length);
       end loop;
     end dump_clob;
 --------------------------------------------------------------------------------
@@ -291,5 +288,5 @@ as
     
   end insert_file_text_data;
 --------------------------------------------------------------------------------
-end file_adapter_data_imp_1;
+end imp_1_file_adapter_data;
 /

@@ -90,7 +90,7 @@ as
   is
     l_frd_id file_raw_data.frd_id%type;
   begin
-    l_frd_id:=insert_row (i_filename, i_plain_text, i_ora_charset_id);
+    l_frd_id:=insert_row(i_filename, i_plain_text, i_ora_charset_id);
   end insert_row;
 --------------------------------------------------------------------------------
   function insert_row (
@@ -108,7 +108,7 @@ as
   begin
     l_blob:=utils.clob_to_blob(
       i_clob_value => l_plain_text,
-      i_charset_id => l_ora_charset_id);
+      i_ora_charset_id => l_ora_charset_id);
     l_frd_id:=file_raw_data_seq.nextval;
     insert into file_raw_data (
       frd_id,

@@ -38,7 +38,7 @@ as
                                            end);
         
     l_ftd_id := file_text_data_seq.nextval;    
-    l_sql:='begin file_adapter_data_imp_'||l_fmd_row.fad_id||
+    l_sql:='begin imp_'||l_fmd_row.fad_id||'_file_adapter_data'||
            '.insert_file_text_data(:1, :2, :3, :4, :5, :6); end;';
     execute immediate l_sql using l_frd_row.frd_id,
                                   l_fmd_row.fmd_id,

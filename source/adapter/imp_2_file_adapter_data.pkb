@@ -1,4 +1,4 @@
-create or replace package body file_adapter_data_imp_2
+create or replace package body imp_2_file_adapter_data
 as
 --------------------------------------------------------------------------------
 -- AS_ZIP subprograms ----------------------------------------------------------
@@ -239,7 +239,7 @@ as
     c_xml_file_name constant varchar2(30 char):='xl/sharedStrings.xml';
     l_xml_file_blob blob;
   begin
-    l_xml_file_blob := file_adapter_data_imp_2.file_blob_from_zipped_blob(
+    l_xml_file_blob := file_blob_from_zipped_blob(
                         i_zipped_blob => i_blob_value,
                         i_ora_charset_name => i_ora_charset_name,
                         i_filename => c_xml_file_name
@@ -262,7 +262,7 @@ as
     c_xml_file_name constant varchar2(30 char):='xl/styles.xml';
     l_xml_file_blob blob;
   begin
-    l_xml_file_blob := file_adapter_data_imp_2.file_blob_from_zipped_blob(
+    l_xml_file_blob := file_blob_from_zipped_blob(
                         i_zipped_blob => i_blob_value,
                         i_ora_charset_name => i_ora_charset_name,
                         i_filename => c_xml_file_name
@@ -634,5 +634,5 @@ as
 --------------------------------------------------------------------------------  
  
 -------------------------------------------------------------------------------- 
-end file_adapter_data_imp_2;
+end imp_2_file_adapter_data;
 /

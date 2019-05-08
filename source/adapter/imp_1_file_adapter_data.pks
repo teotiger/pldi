@@ -1,4 +1,4 @@
-create or replace package file_adapter_data_imp_1 authid definer 
+create or replace package imp_1_file_adapter_data authid definer 
 as
 
   -- This procedure try to extract the binary data to structured tabular data.
@@ -16,5 +16,5 @@ as
     i_ora_charset_id    in file_meta_data.ora_charset_id%type,
     i_ora_charset_name  in file_meta_data.ora_charset_name%type);
 
-end file_adapter_data_imp_1;
+end imp_1_file_adapter_data;
 /
