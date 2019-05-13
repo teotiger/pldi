@@ -7,7 +7,7 @@ With **PL**/SQL **D**ata **I**ntegration it is possible to store files in a tabl
 **PLDI** key features:
 
 - adapter for CSV ("Character"-Delimited-Values) and XLSX (Microsoft Open XML) comes out of the box
-- every PL/SQL statement or block can be executed after the file processing call ("push" info about successful file processing)
+- every PL/SQL statement or block can be executed after the processing ("push" info)
 - to extract the data from a BLOB into a table, the default is reading the entire file from a directory object, but it is also possible to pass the BLOB directly from another table (for example **apex_collections**) or pass a big string (=CLOB)
 
 ## Installation
@@ -82,6 +82,13 @@ Every table has its own api package for DML operations.
 PLDI is released under the [MIT license](https://github.com/teotiger/pldi/blob/master/license.txt).
 
 ## Version History
+
+Version 0.9.7 - May 13, 2019
+
+- bugfix in csv adapter (remove trailing spaces and linebreaks)
+- revision of unit tests:
+  - every package should have their own testpackage
+  - naming convention is packagename + underscore + suffix "ut"
 
 Version 0.9.6 - May 8, 2019
 

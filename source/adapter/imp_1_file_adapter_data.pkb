@@ -1,6 +1,11 @@
 create or replace package body imp_1_file_adapter_data
 as
 --------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+  c_lf constant varchar2(1 char):=chr(10);
+  c_cr constant varchar2(1 char):=chr(13);
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
   procedure insert_file_text_data(
     i_frd_id            in file_raw_data.frd_id%type,
     i_fmd_id            in file_meta_data.fmd_id%type,
@@ -9,9 +14,12 @@ as
     i_ora_charset_id    in file_meta_data.ora_charset_id%type,
     i_ora_charset_name  in file_meta_data.ora_charset_name%type)
   is
+    c_sp constant varchar2(1 char):=' ';
     l_meta file_meta_data%rowtype;
     l_ridx simple_integer:=0;
     l_rest varchar2(4000 char):='';
+    l_clob clob;
+    l_last_char varchar2(1 char);
     ---
     function trimit(i_str in varchar2) return varchar2 deterministic is
     begin
@@ -23,13 +31,14 @@ as
     ---
     procedure dump_varchar2(i_buffer in varchar2, i_is_part in boolean) 
     is
-      c_eol constant varchar2(1 char):=chr(10);
       l_row_arr  sys.ora_mining_varchar2_nt;
       l_cell_arr sys.ora_mining_varchar2_nt;
       l_ftd_row  file_text_data%rowtype;
     begin
       l_row_arr := utils.split_varchar2(i_string_value => l_rest||i_buffer, 
-                                        i_delimiter => c_eol,
+                                        -- what happens with windows newline?
+                                        --  2 chars CRLF chr(13)||chr(10)
+                                        i_delimiter => c_lf,
                                         i_enclosure => l_meta.enclosure);
       <<row_loop>>
       for i in 1..l_row_arr.count loop
@@ -280,10 +289,26 @@ as
       from file_meta_data
      where fmd_id=i_fmd_id;  
  
-    dump_clob(
-      i_plain_text => utils.blob_to_clob(i_blob_value => i_blob_value,
-                                         i_ora_charset_id => i_ora_charset_id)
-    );    
+    l_clob:=utils.blob_to_clob(i_blob_value => i_blob_value,
+                               i_ora_charset_id => i_ora_charset_id);
+    
+    -- remove trailing spaces and linebreaks
+    l_last_char:=sys.dbms_lob.substr(
+                    lob_loc => l_clob,
+                    amount => 1,
+                    offset => sys.dbms_lob.getlength(l_clob) - 1);
+    while l_last_char in (c_lf, c_cr, c_sp)
+    loop
+      l_clob:=rtrim(l_clob, c_lf);
+      l_clob:=rtrim(l_clob, c_cr);
+      l_clob:=rtrim(l_clob, c_sp);
+      l_last_char:=sys.dbms_lob.substr(
+                    lob_loc => l_clob,
+                    amount => 1,
+                    offset => sys.dbms_lob.getlength(l_clob) - 1);
+    end loop;
+    
+    dump_clob(i_plain_text => l_clob);    
     commit;
     
   end insert_file_text_data;

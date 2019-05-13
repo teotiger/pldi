@@ -27,13 +27,13 @@ as
     
     select *
       into l_fmd_row
-      from file_meta_data fmd
-     where l_frd_row.filename like case when fmd.filter_is_regular_expression=0 
-                                    then replace(fmd.filename_match_filter, '*', '%')
+      from file_meta_data
+     where l_frd_row.filename like case when filter_is_regular_expression=0 
+                                    then replace(filename_match_filter, '*', '%')
                                     else l_frd_row.filename
                                    end
-       and regexp_like(l_frd_row.filename, case when fmd.filter_is_regular_expression=1 
-                                            then fmd.filename_match_filter 
+       and regexp_like(l_frd_row.filename, case when filter_is_regular_expression=1 
+                                            then filename_match_filter 
                                             else l_frd_row.filename
                                            end);
         

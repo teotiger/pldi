@@ -28,6 +28,7 @@ select coalesce('&&1','PLDI_FILES') pldi_directory,
 prompt Create user and directory...
 @source/create_directory_and_user.sql &&pldi_directory &&pldi_path_name &&pldi_user &&pldi_password
 prompt ...done!
+prompt
 
 alter session set current_schema = &&pldi_user;
 
@@ -37,7 +38,7 @@ prompt Create tables...
 @source/table/file_meta_data.sql
 @source/table/file_text_data.sql
 prompt ...done!
-
+prompt
 prompt Create types, packages and views...
 @@source/utils/utils.pks
 @@source/api/file_adapter_data_api.pks
@@ -49,13 +50,19 @@ prompt Create types, packages and views...
 @@source/api/file_meta_data_api.pkb
 @@source/api/file_text_data_api.pkb
 @@source/utils/utils.pkb &&pldi_directory
-@@tests/utils_test.pks
-@@tests/utils_test.pkb
 @@source/adapter/imp_1_file_adapter_data.pks
 @@source/adapter/imp_1_file_adapter_data.pkb
 @@source/adapter/imp_2_file_adapter_data.pks
 @@source/adapter/imp_2_file_adapter_data.pkb
 @@source/utils/file_content_v.vw
+prompt ...done!
+prompt
+prompt Create default settings and unit test packages...
+@@source/utils/default_pldi_settings.sql
+@@tests/file_raw_data_api_ut.pks
+@@tests/file_raw_data_api_ut.pkb
+@@tests/imp_1_file_adapter_data_ut.pks
+@@tests/imp_1_file_adapter_data_ut.pkb
 prompt ...done!
 
 exit
