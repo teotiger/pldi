@@ -52,6 +52,7 @@ as
                         blob_to_num( l_zipped_blob, 2, t_hd_ind + 28 ),
                         t_hd_ind + 46),
                       src_charset => l_ora_charset_name);
+dbms_output.put_line('filename '||l_filename);
         if (not l_filter_sheet_name or (
             l_filename like 'xl/worksheets/%' and 
             l_filename not like '%\_rels%' escape '\' )
@@ -76,7 +77,7 @@ as
   is
     l_zipped_blob blob not null:=i_zipped_blob;
     l_ora_charset_name  varchar2(16 char) not null:=i_ora_charset_name;
-    l_filename varchar2(255 char) not null:=i_filename;    
+    l_filename varchar2(255 char) not null:=i_filename;
     t_tmp blob;
     t_ind integer;
     t_hd_ind integer;
@@ -186,52 +187,15 @@ as
     i_ora_charset_id    in file_meta_data.ora_charset_id%type,
     i_ora_charset_name  in file_meta_data.ora_charset_name%type)
   is
-    c_xml_charset_id constant varchar2(30 char):=nls_charset_id('AL32UTF8');
-    l_ridx    simple_integer:=0;
+    c_xml_charset_id constant varchar2(30 char):=nls_charset_id('AL32UTF8');  -- i_ora_charset_name ???
+--    c_sheet_re constant varchar2(19 char):='([A-Za-z0-9]*).xml';
+    l_ridx simple_integer:=0;
     l_ftd_row file_text_data%rowtype;
-    l_sheets  sys.ora_mining_varchar2_nt;
+    l_sheets sys.ora_mining_varchar2_nt;
     l_sheet_blob blob;
-    l_shared_strings  sys.ora_mining_varchar2_nt;
-    l_format_codes  sys.ora_mining_varchar2_nt;
-
---  procedure extract_shared_strings(
---        p_xlsx           in blob,
---        p_strings        in out nocopy sys.ora_mining_varchar2_nt )
---    is
---        l_shared_strings blob;
---    begin
---
-----if l_original then
-----l_shared_strings := file_adapter_data_imp_2.get_file(
-----  --l_shared_strings := apex_zip.get_file_content(
-----            p_zipped_blob => p_xlsx,
-----            p_file_name   => 'xl/sharedStrings.xml' );
-----else
---l_shared_strings := file_adapter_data_imp_2.file_blob_from_zipped_blob(
---            p_xlsx,
---            i_ora_charset_name,
---            'xl/sharedStrings.xml' );
-----end if;
---
---dbms_output.put_line('DBG - 1 pass');
---        if l_shared_strings is null then
---            return;
---        end if;
---dbms_output.put_line('DBG - 2 pass');
---
---        select shared_string
---          bulk collect into p_strings
---          from xmltable(
---              xmlnamespaces( default 'http://schemas.openxmlformats.org/spreadsheetml/2006/main' ),
---              '//si'
---              passing xmltype.createxml( l_shared_strings, nls_charset_id('AL32UTF8'), null )
---              columns
---                 shared_string varchar2(4000)   path 't/text()' );
---
---dbms_output.put_line('DBG - 3 pass');
---
---
---    end extract_shared_strings;
+    l_shared_strings sys.ora_mining_varchar2_nt;
+    l_format_codes sys.ora_mining_varchar2_nt;
+    l_workbook_names sys.ora_mining_varchar2_nt;
   
   procedure query_excel_shared_strings(
     i_excel_shared_strings in out nocopy sys.ora_mining_varchar2_nt)
@@ -275,6 +239,7 @@ as
               '//cellXfs/xf'
               passing xmltype.createxml( l_xml_file_blob, c_xml_charset_id, null )
               columns
+                seq_no for ordinality, -- order is important in case of outer join !!!
                 numFmtId number path '@numFmtId' ) s,
              xmltable(
               xmlnamespaces( default 'http://schemas.openxmlformats.org/spreadsheetml/2006/main' ),
@@ -283,11 +248,33 @@ as
               columns
                 formatCode varchar2(255) path '@formatCode',
                 numFmtId   number        path '@numFmtId' ) n
-        where s.numFmtId = n.numFmtId ( + );
+        where s.numFmtId = n.numFmtId ( + )
+        order by seq_no; -- order is important in case of outer join !!!
     end if;
   end query_excel_format_codes;
   
-  
+  procedure query_excel_workbook_names(
+    i_excel_workbook_names in out nocopy sys.ora_mining_varchar2_nt)
+  is
+    c_xml_file_name constant varchar2(30 char):='xl/workbook.xml';
+    l_xml_file_blob blob;
+  begin
+    l_xml_file_blob := file_blob_from_zipped_blob(
+                        i_zipped_blob => i_blob_value,
+                        i_ora_charset_name => i_ora_charset_name,
+                        i_filename => c_xml_file_name
+                       );
+    if l_xml_file_blob is not null then
+      select workbook_name
+        bulk collect into i_excel_workbook_names
+        from xmltable(
+              xmlnamespaces( default 'http://schemas.openxmlformats.org/spreadsheetml/2006/main' ),
+              '//sheets/sheet'
+              passing xmltype.createxml( l_xml_file_blob, c_xml_charset_id, null )
+              columns
+                workbook_name varchar2(255) path '@name' );
+    end if;
+  end query_excel_workbook_names;
   
 --  procedure extract_date_styles(
 --        p_xlsx           in blob,
@@ -334,11 +321,12 @@ as
   
   
   procedure do_the_inserts (p_sheet_content in blob, p_sheet_name in varchar2,
+  p_sheet_id in pls_integer,
   p_shared_strings in sys.ora_mining_varchar2_nt,
   p_format_codes in sys.ora_mining_varchar2_nt
   )
   is
-    c_date_format   constant varchar2(255) := 'YYYY-MM-DD';
+    c_date_format   constant varchar2(10 char) := 'YYYY-MM-DD';
     l_worksheet     blob not null:=p_sheet_content;
     
         l_shared_strings      sys.ora_mining_varchar2_nt := p_shared_strings;
@@ -352,6 +340,7 @@ as
         l_real_col#           pls_integer;
         l_row_has_content     boolean := false;
         
+        l_num number;
         
         function convert_ref_to_col#( p_col_ref in varchar2 ) return pls_integer is
         l_colpart  varchar2(10);
@@ -365,6 +354,9 @@ as
         end if;
     end convert_ref_to_col#;
   begin
+  
+  l_ftd_row:=null;  -- important!
+  
   -- the actual XML parsing starts here
         for i in (
             select 
@@ -408,8 +400,9 @@ as
     l_ftd_row.fmd_id := i_fmd_id;
     l_ftd_row.timestamp_insert := systimestamp;
     l_ftd_row.sheet_name := p_sheet_name;
+    l_ftd_row.sheet_id := p_sheet_id;
     insert into file_text_data values l_ftd_row;
-    commit;
+    commit;                                                                     --TODO end!!!
                     l_line# := l_line# + 1;
 --                    reset_row( l_parsed_row );
         l_ftd_row:=null;
@@ -419,23 +412,40 @@ as
                     l_first_row := false;
                 end if;
             end if;
---
+-- string? 
             if i.xlsx_col_type = 's' then
                 if l_shared_strings.exists( i.xlsx_val + 1) then
                     l_value := l_shared_strings( i.xlsx_val + 1);
                 else
                     l_value := '[Data Error: N/A]' ;
                 end if;
-            else 
+            else -- date or number (xlsx_col_type is missing)
+            
+--            dbms_output.put_line(i.xlsx_val);
+--            if l_shared_strings.exists( i.xlsx_val + 1) then
+--              dbms_output.put_line(l_shared_strings( i.xlsx_val + 1));
+--            end if;
+            
+            
                 if l_format_codes.exists( i.xlsx_col_style + 1 ) and (
                     instr( l_format_codes( i.xlsx_col_style + 1 ), 'd' ) > 0 and
                     instr( l_format_codes( i.xlsx_col_style + 1 ), 'm' ) > 0 )
                 then
+                dbms_output.put_line(i.xlsx_val);
+                dbms_output.put_line(DATE'1900-01-01');
+                dbms_output.put_line(DATE'1900-01-01' - 2);
+                                
+--                    l_value := --to_char( 
+--                    case when 62 > 61 then '|'||i.xlsx_val||'|' else 'b' end;
+
+-- caution with nls!!!
+l_num:=to_number(i.xlsx_val,'9999999D9999999', 'NLS_NUMERIC_CHARACTERS=''.,''');
+
                     l_value := to_char( 
-                    case when i.xlsx_val > 61 
-                      then DATE'1900-01-01' - 2 + i.xlsx_val
-                      else DATE'1900-01-01' - 1 + i.xlsx_val
-            end, c_date_format );
+                    case when l_num > 61 
+                      then DATE'1900-01-01' - 2 + l_num
+                      else DATE'1900-01-01' - 1 + l_num
+            end, l_format_codes( i.xlsx_col_style + 1 ));--c_date_format );     -- format as in the original excel file
                 else
                     l_value := i.xlsx_val;
                 end if;
@@ -444,75 +454,212 @@ as
             pragma inline( convert_ref_to_col#, 'YES' );
             l_real_col# := convert_ref_to_col#( i.xlsx_col );
 
-            if l_real_col# between 1 and 50 then
+            if l_real_col# between 1 and 200 then
                 l_row_has_content := true;
             end if;
---
 
             case l_real_col#
-              when 1 then l_ftd_row.c001:=l_value;--trimit(l_cell_arr(j));
-              when 2 then l_ftd_row.c002:=l_value;--trimit(l_cell_arr(j));
-              when 3 then l_ftd_row.c003:=l_value;--trimit(l_cell_arr(j));
-              when 4 then l_ftd_row.c004:=l_value;--trimit(l_cell_arr(j));
-              when 5 then l_ftd_row.c005:=l_value;--trimit(l_cell_arr(j));
-            else null;
+              when 1 then l_ftd_row.c001:=l_value;
+              when 2 then l_ftd_row.c002:=l_value;
+              when 3 then l_ftd_row.c003:=l_value;
+              when 4 then l_ftd_row.c004:=l_value;
+              when 5 then l_ftd_row.c005:=l_value;
+              when 6 then l_ftd_row.c006:=l_value;
+              when 7 then l_ftd_row.c007:=l_value;
+              when 8 then l_ftd_row.c008:=l_value;
+              when 9 then l_ftd_row.c009:=l_value;
+              when 10 then l_ftd_row.c010:=l_value;
+              when 11 then l_ftd_row.c011:=l_value;
+              when 12 then l_ftd_row.c012:=l_value;
+              when 13 then l_ftd_row.c013:=l_value;
+              when 14 then l_ftd_row.c014:=l_value;
+              when 15 then l_ftd_row.c015:=l_value;
+              when 16 then l_ftd_row.c016:=l_value;
+              when 17 then l_ftd_row.c017:=l_value;
+              when 18 then l_ftd_row.c018:=l_value;
+              when 19 then l_ftd_row.c019:=l_value;
+              when 20 then l_ftd_row.c020:=l_value;
+              when 21 then l_ftd_row.c021:=l_value;
+              when 22 then l_ftd_row.c022:=l_value;
+              when 23 then l_ftd_row.c023:=l_value;
+              when 24 then l_ftd_row.c024:=l_value;
+              when 25 then l_ftd_row.c025:=l_value;
+              when 26 then l_ftd_row.c026:=l_value;
+              when 27 then l_ftd_row.c027:=l_value;
+              when 28 then l_ftd_row.c028:=l_value;
+              when 29 then l_ftd_row.c029:=l_value;
+              when 30 then l_ftd_row.c030:=l_value;
+              when 31 then l_ftd_row.c031:=l_value;
+              when 32 then l_ftd_row.c032:=l_value;
+              when 33 then l_ftd_row.c033:=l_value;
+              when 34 then l_ftd_row.c034:=l_value;
+              when 35 then l_ftd_row.c035:=l_value;
+              when 36 then l_ftd_row.c036:=l_value;
+              when 37 then l_ftd_row.c037:=l_value;
+              when 38 then l_ftd_row.c038:=l_value;
+              when 39 then l_ftd_row.c039:=l_value;
+              when 40 then l_ftd_row.c040:=l_value;
+              when 41 then l_ftd_row.c041:=l_value;
+              when 42 then l_ftd_row.c042:=l_value;
+              when 43 then l_ftd_row.c043:=l_value;
+              when 44 then l_ftd_row.c044:=l_value;
+              when 45 then l_ftd_row.c045:=l_value;
+              when 46 then l_ftd_row.c046:=l_value;
+              when 47 then l_ftd_row.c047:=l_value;
+              when 48 then l_ftd_row.c048:=l_value;
+              when 49 then l_ftd_row.c049:=l_value;
+              when 50 then l_ftd_row.c050:=l_value;
+              when 51 then l_ftd_row.c051:=l_value;
+              when 52 then l_ftd_row.c052:=l_value;
+              when 53 then l_ftd_row.c053:=l_value;
+              when 54 then l_ftd_row.c054:=l_value;
+              when 55 then l_ftd_row.c055:=l_value;
+              when 56 then l_ftd_row.c056:=l_value;
+              when 57 then l_ftd_row.c057:=l_value;
+              when 58 then l_ftd_row.c058:=l_value;
+              when 59 then l_ftd_row.c059:=l_value;
+              when 60 then l_ftd_row.c060:=l_value;
+              when 61 then l_ftd_row.c061:=l_value;
+              when 62 then l_ftd_row.c062:=l_value;
+              when 63 then l_ftd_row.c063:=l_value;
+              when 64 then l_ftd_row.c064:=l_value;
+              when 65 then l_ftd_row.c065:=l_value;
+              when 66 then l_ftd_row.c066:=l_value;
+              when 67 then l_ftd_row.c067:=l_value;
+              when 68 then l_ftd_row.c068:=l_value;
+              when 69 then l_ftd_row.c069:=l_value;
+              when 70 then l_ftd_row.c070:=l_value;
+              when 71 then l_ftd_row.c071:=l_value;
+              when 72 then l_ftd_row.c072:=l_value;
+              when 73 then l_ftd_row.c073:=l_value;
+              when 74 then l_ftd_row.c074:=l_value;
+              when 75 then l_ftd_row.c075:=l_value;
+              when 76 then l_ftd_row.c076:=l_value;
+              when 77 then l_ftd_row.c077:=l_value;
+              when 78 then l_ftd_row.c078:=l_value;
+              when 79 then l_ftd_row.c079:=l_value;
+              when 80 then l_ftd_row.c080:=l_value;
+              when 81 then l_ftd_row.c081:=l_value;
+              when 82 then l_ftd_row.c082:=l_value;
+              when 83 then l_ftd_row.c083:=l_value;
+              when 84 then l_ftd_row.c084:=l_value;
+              when 85 then l_ftd_row.c085:=l_value;
+              when 86 then l_ftd_row.c086:=l_value;
+              when 87 then l_ftd_row.c087:=l_value;
+              when 88 then l_ftd_row.c088:=l_value;
+              when 89 then l_ftd_row.c089:=l_value;
+              when 90 then l_ftd_row.c090:=l_value;
+              when 91 then l_ftd_row.c091:=l_value;
+              when 92 then l_ftd_row.c092:=l_value;
+              when 93 then l_ftd_row.c093:=l_value;
+              when 94 then l_ftd_row.c094:=l_value;
+              when 95 then l_ftd_row.c095:=l_value;
+              when 96 then l_ftd_row.c096:=l_value;
+              when 97 then l_ftd_row.c097:=l_value;
+              when 98 then l_ftd_row.c098:=l_value;
+              when 99 then l_ftd_row.c099:=l_value;
+              when 100 then l_ftd_row.c100:=l_value;
+              when 101 then l_ftd_row.c101:=l_value;
+              when 102 then l_ftd_row.c102:=l_value;
+              when 103 then l_ftd_row.c103:=l_value;
+              when 104 then l_ftd_row.c104:=l_value;
+              when 105 then l_ftd_row.c105:=l_value;
+              when 106 then l_ftd_row.c106:=l_value;
+              when 107 then l_ftd_row.c107:=l_value;
+              when 108 then l_ftd_row.c108:=l_value;
+              when 109 then l_ftd_row.c109:=l_value;
+              when 110 then l_ftd_row.c110:=l_value;
+              when 111 then l_ftd_row.c111:=l_value;
+              when 112 then l_ftd_row.c112:=l_value;
+              when 113 then l_ftd_row.c113:=l_value;
+              when 114 then l_ftd_row.c114:=l_value;
+              when 115 then l_ftd_row.c115:=l_value;
+              when 116 then l_ftd_row.c116:=l_value;
+              when 117 then l_ftd_row.c117:=l_value;
+              when 118 then l_ftd_row.c118:=l_value;
+              when 119 then l_ftd_row.c119:=l_value;
+              when 120 then l_ftd_row.c120:=l_value;
+              when 121 then l_ftd_row.c121:=l_value;
+              when 122 then l_ftd_row.c122:=l_value;
+              when 123 then l_ftd_row.c123:=l_value;
+              when 124 then l_ftd_row.c124:=l_value;
+              when 125 then l_ftd_row.c125:=l_value;
+              when 126 then l_ftd_row.c126:=l_value;
+              when 127 then l_ftd_row.c127:=l_value;
+              when 128 then l_ftd_row.c128:=l_value;
+              when 129 then l_ftd_row.c129:=l_value;
+              when 130 then l_ftd_row.c130:=l_value;
+              when 131 then l_ftd_row.c131:=l_value;
+              when 132 then l_ftd_row.c132:=l_value;
+              when 133 then l_ftd_row.c133:=l_value;
+              when 134 then l_ftd_row.c134:=l_value;
+              when 135 then l_ftd_row.c135:=l_value;
+              when 136 then l_ftd_row.c136:=l_value;
+              when 137 then l_ftd_row.c137:=l_value;
+              when 138 then l_ftd_row.c138:=l_value;
+              when 139 then l_ftd_row.c139:=l_value;
+              when 140 then l_ftd_row.c140:=l_value;
+              when 141 then l_ftd_row.c141:=l_value;
+              when 142 then l_ftd_row.c142:=l_value;
+              when 143 then l_ftd_row.c143:=l_value;
+              when 144 then l_ftd_row.c144:=l_value;
+              when 145 then l_ftd_row.c145:=l_value;
+              when 146 then l_ftd_row.c146:=l_value;
+              when 147 then l_ftd_row.c147:=l_value;
+              when 148 then l_ftd_row.c148:=l_value;
+              when 149 then l_ftd_row.c149:=l_value;
+              when 150 then l_ftd_row.c150:=l_value;
+              when 151 then l_ftd_row.c151:=l_value;
+              when 152 then l_ftd_row.c152:=l_value;
+              when 153 then l_ftd_row.c153:=l_value;
+              when 154 then l_ftd_row.c154:=l_value;
+              when 155 then l_ftd_row.c155:=l_value;
+              when 156 then l_ftd_row.c156:=l_value;
+              when 157 then l_ftd_row.c157:=l_value;
+              when 158 then l_ftd_row.c158:=l_value;
+              when 159 then l_ftd_row.c159:=l_value;
+              when 160 then l_ftd_row.c160:=l_value;
+              when 161 then l_ftd_row.c161:=l_value;
+              when 162 then l_ftd_row.c162:=l_value;
+              when 163 then l_ftd_row.c163:=l_value;
+              when 164 then l_ftd_row.c164:=l_value;
+              when 165 then l_ftd_row.c165:=l_value;
+              when 166 then l_ftd_row.c166:=l_value;
+              when 167 then l_ftd_row.c167:=l_value;
+              when 168 then l_ftd_row.c168:=l_value;
+              when 169 then l_ftd_row.c169:=l_value;
+              when 170 then l_ftd_row.c170:=l_value;
+              when 171 then l_ftd_row.c171:=l_value;
+              when 172 then l_ftd_row.c172:=l_value;
+              when 173 then l_ftd_row.c173:=l_value;
+              when 174 then l_ftd_row.c174:=l_value;
+              when 175 then l_ftd_row.c175:=l_value;
+              when 176 then l_ftd_row.c176:=l_value;
+              when 177 then l_ftd_row.c177:=l_value;
+              when 178 then l_ftd_row.c178:=l_value;
+              when 179 then l_ftd_row.c179:=l_value;
+              when 180 then l_ftd_row.c180:=l_value;
+              when 181 then l_ftd_row.c181:=l_value;
+              when 182 then l_ftd_row.c182:=l_value;
+              when 183 then l_ftd_row.c183:=l_value;
+              when 184 then l_ftd_row.c184:=l_value;
+              when 185 then l_ftd_row.c185:=l_value;
+              when 186 then l_ftd_row.c186:=l_value;
+              when 187 then l_ftd_row.c187:=l_value;
+              when 188 then l_ftd_row.c188:=l_value;
+              when 189 then l_ftd_row.c189:=l_value;
+              when 190 then l_ftd_row.c190:=l_value;
+              when 191 then l_ftd_row.c191:=l_value;
+              when 192 then l_ftd_row.c192:=l_value;
+              when 193 then l_ftd_row.c193:=l_value;
+              when 194 then l_ftd_row.c194:=l_value;
+              when 195 then l_ftd_row.c195:=l_value;
+              when 196 then l_ftd_row.c196:=l_value;
+              when 197 then l_ftd_row.c197:=l_value;
+              when 198 then l_ftd_row.c198:=l_value;
+              when 199 then l_ftd_row.c199:=l_value;
+              when 200 then l_ftd_row.c200:=l_value;
             end case;
---            -- we currently support 50 columns - but this can easily be increased. Just add additional lines
---            -- as follows:
---            -- when l_real_col# = {nn} then l_parsed_row.col{nn} := l_value;
---            case
---                when l_real_col# =  1 then l_parsed_row.col01 := l_value;
---                when l_real_col# =  2 then l_parsed_row.col02 := l_value;
---                when l_real_col# =  3 then l_parsed_row.col03 := l_value;
---                when l_real_col# =  4 then l_parsed_row.col04 := l_value;
---                when l_real_col# =  5 then l_parsed_row.col05 := l_value;
---                when l_real_col# =  6 then l_parsed_row.col06 := l_value;
---                when l_real_col# =  7 then l_parsed_row.col07 := l_value;
---                when l_real_col# =  8 then l_parsed_row.col08 := l_value;
---                when l_real_col# =  9 then l_parsed_row.col09 := l_value;
---                when l_real_col# = 10 then l_parsed_row.col10 := l_value;
---                when l_real_col# = 11 then l_parsed_row.col11 := l_value;
---                when l_real_col# = 12 then l_parsed_row.col12 := l_value;
---                when l_real_col# = 13 then l_parsed_row.col13 := l_value;
---                when l_real_col# = 14 then l_parsed_row.col14 := l_value;
---                when l_real_col# = 15 then l_parsed_row.col15 := l_value;
---                when l_real_col# = 16 then l_parsed_row.col16 := l_value;
---                when l_real_col# = 17 then l_parsed_row.col17 := l_value;
---                when l_real_col# = 18 then l_parsed_row.col18 := l_value;
---                when l_real_col# = 19 then l_parsed_row.col19 := l_value;
---                when l_real_col# = 20 then l_parsed_row.col20 := l_value;
---                when l_real_col# = 21 then l_parsed_row.col21 := l_value;
---                when l_real_col# = 22 then l_parsed_row.col22 := l_value;
---                when l_real_col# = 23 then l_parsed_row.col23 := l_value;
---                when l_real_col# = 24 then l_parsed_row.col24 := l_value;
---                when l_real_col# = 25 then l_parsed_row.col25 := l_value;
---                when l_real_col# = 26 then l_parsed_row.col26 := l_value;
---                when l_real_col# = 27 then l_parsed_row.col27 := l_value;
---                when l_real_col# = 28 then l_parsed_row.col28 := l_value;
---                when l_real_col# = 29 then l_parsed_row.col29 := l_value;
---                when l_real_col# = 30 then l_parsed_row.col30 := l_value;
---                when l_real_col# = 31 then l_parsed_row.col31 := l_value;
---                when l_real_col# = 32 then l_parsed_row.col32 := l_value;
---                when l_real_col# = 33 then l_parsed_row.col33 := l_value;
---                when l_real_col# = 34 then l_parsed_row.col34 := l_value;
---                when l_real_col# = 35 then l_parsed_row.col35 := l_value;
---                when l_real_col# = 36 then l_parsed_row.col36 := l_value;
---                when l_real_col# = 37 then l_parsed_row.col37 := l_value;
---                when l_real_col# = 38 then l_parsed_row.col38 := l_value;
---                when l_real_col# = 39 then l_parsed_row.col39 := l_value;
---                when l_real_col# = 40 then l_parsed_row.col40 := l_value;
---                when l_real_col# = 41 then l_parsed_row.col41 := l_value;
---                when l_real_col# = 42 then l_parsed_row.col42 := l_value;
---                when l_real_col# = 43 then l_parsed_row.col43 := l_value;
---                when l_real_col# = 44 then l_parsed_row.col44 := l_value;
---                when l_real_col# = 45 then l_parsed_row.col45 := l_value;
---                when l_real_col# = 46 then l_parsed_row.col46 := l_value;
---                when l_real_col# = 47 then l_parsed_row.col47 := l_value;
---                when l_real_col# = 48 then l_parsed_row.col48 := l_value;
---                when l_real_col# = 49 then l_parsed_row.col49 := l_value;
---                when l_real_col# = 50 then l_parsed_row.col50 := l_value;
---                else null;
---            end case;
 
         end loop;
         if l_row_has_content then
@@ -524,9 +671,10 @@ as
     l_ftd_row.frd_id := i_frd_id;
     l_ftd_row.fmd_id := i_fmd_id;
     l_ftd_row.timestamp_insert := systimestamp;
-    l_ftd_row.sheet_name := p_sheet_name||'last';
+    l_ftd_row.sheet_name := p_sheet_name;
+    l_ftd_row.sheet_id := p_sheet_id;
     insert into file_text_data values l_ftd_row;
-    commit;
+    commit;                                                                     --TODO end!!!
         end if;
   end;
   
@@ -548,6 +696,8 @@ as
 --    dbms_output.put_line('format codes => '||l_format_codes.count);
 
     query_excel_format_codes(i_excel_format_codes => l_format_codes);
+
+    query_excel_workbook_names(i_excel_workbook_names => l_workbook_names);
 
     l_sheets:=zipped_blob_to_files(i_blob_value, i_ora_charset_name, true);
 
@@ -577,7 +727,8 @@ as
       
       do_the_inserts(
         p_sheet_content => l_sheet_blob,
-        p_sheet_name => regexp_substr(l_sheets(i), '(([A-Za-z0-9])*.xml)'),
+        p_sheet_name => l_workbook_names(i),--regexp_substr(l_sheets(i), c_sheet_re, 1, 1, 'ix', 1),
+        p_sheet_id => i,
         p_shared_strings => l_shared_strings,
         p_format_codes => l_format_codes);
       

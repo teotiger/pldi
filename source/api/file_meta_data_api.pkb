@@ -122,10 +122,17 @@ as
   end update_row;
 --------------------------------------------------------------------------------
   procedure delete_row (
-    i_fmd_id  in file_meta_data.fmd_id%type)
+    i_fmd_id       in file_meta_data.fmd_id%type,
+    i_force_delete in boolean default false)
   is
     l_fmd_id file_meta_data.fmd_id%type not null:=i_fmd_id;
+    l_force_delete boolean not null:=i_force_delete;
   begin
+    if l_force_delete then
+      delete file_text_data 
+       where fmd_id=l_fmd_id;
+    end if;
+    
     delete file_meta_data 
      where fmd_id=l_fmd_id;
     commit;

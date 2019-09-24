@@ -2,7 +2,7 @@
 
 ## Introduction
 
-With **PL**/SQL **D**ata **I**ntegration it is possible to store files in a table and - with the corresponding adapter (package) - transform the data into a single table for further usage.
+With **PL**/SQL **D**ata **I**ntegration it is possible to store files in a table (as BLOB) and - with the corresponding adapter (package) - transform the data (as VARCHAR2) into a single table  for further usage.
 
 **PLDI** key features:
 
@@ -38,8 +38,8 @@ After successful installation define your meta data by using the `FILE_META_DATA
 begin
   file_meta_data_api.insert_row(
     i_keyword => 'tsv example',
-    i_filename_match_like => '*.tsv',
-    i_filename_match_regexp_like => null,
+    i_filename_match_filter => '*.tsv',
+    i_filter_is_regular_expression => 0,
     i_fad_id => 1,
     i_character_set => 'UTF-8',
     i_delimiter => chr(9),
@@ -82,6 +82,18 @@ Every table has its own api package for DML operations.
 PLDI is released under the [MIT license](https://github.com/teotiger/pldi/blob/master/license.txt).
 
 ## Version History
+
+Version 0.9.8 - September 24, 2019
+
+- bugfix csv adapter (`imp_1_file_adapter_data`):
+  - support for enclosure char inside text with enclosure
+  - correct handling of linebreaks inside text with enclosure
+- bugfix xlsx adapter (`imp_2_file_adapter_data`):
+  - correct sheet_name
+  - correct sheet_id
+  - extract all 200 columns :)
+  - correct display of dates
+- finetuning in api packages (description and unit tests)
 
 Version 0.9.7 - May 13, 2019
 

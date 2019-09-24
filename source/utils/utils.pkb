@@ -3,7 +3,7 @@ as
 --------------------------------------------------------------------------------
   function version return varchar2 deterministic
   is
-    c_version constant varchar2(8 char) := 'v0.9.7';
+    c_version constant varchar2(8 char) := 'v0.9.8';
   begin
     return c_version;
   end version;
@@ -78,6 +78,7 @@ as
       i_enclosure    in varchar2)
     return sys.ora_mining_varchar2_nt deterministic
   is
+    c_eol constant char(1 char):=chr(10);
 -->  https://raw.githubusercontent.com/mortenbra/alexandria-plsql-utils/master/ora/csv_util_pkg.pkb
     p_separator varchar2(1 char) := i_delimiter;
     l_returnvalue      sys.ora_mining_varchar2_nt := sys.ora_mining_varchar2_nt();
@@ -182,23 +183,48 @@ as
       -- Not quoted
       else
       
-        --Check if the current value is a separator, save or append as appropriate
-        if l_current = p_separator then
+      
+ 
+--        --Check if the current value is a separator, save or append as appropriate
+--        if l_current = p_separator then
+--          save_column;
+--        else
+--          append_current;
+--        end if;
+--      end if;
+      
+
+
+        --Check if current value is a separator, save or append as appropriate
+        if l_current = p_separator and p_separator != c_eol 
+        then
           save_column;
+        -- maybe multiline cell with enclosure
+        elsif l_current = p_separator and p_separator = c_eol
+        then
+          if l_quote is null or 
+             mod(regexp_count(l_current_column, l_quote) -                      -- total quotes
+                 regexp_count(l_current_column, '('||l_quote||')\1')*2          -- escaped quotes
+             ,2)=0
+          then
+            save_column;
+          else
+            append_current;
+          end if;
         else
           append_current;
         end if;
       end if;
-      
+
       --Check to see if we've used all our characters
       if l_next is null then
         save_column;
       end if;
-  
+
       --The continue statement was not added to PL/SQL until 11g. Use GOTO in 9i.
       <<loop_again>> l_position := l_position + 1;
     end loop ;
-    
+
     return l_returnvalue;
   end split_varchar2;
 --------------------------------------------------------------------------------

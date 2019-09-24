@@ -12,6 +12,6 @@ define pldi_password  = &4
 create directory &pldi_directory as '&pldi_path_name';
 
 create user &pldi_user identified by "&pldi_password";
-grant connect, resource to &pldi_user;
+grant connect, resource, create procedure, create view to &pldi_user;
 
 grant all on directory &pldi_directory to &pldi_user;

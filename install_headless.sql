@@ -42,6 +42,8 @@ prompt ...done!
 prompt
 prompt Create default settings and unit test packages...
 @@source/utils/default_pldi_settings.sql
+@@tests/file_meta_data_api_ut.pks
+@@tests/file_meta_data_api_ut.pkb
 @@tests/file_raw_data_api_ut.pks
 @@tests/file_raw_data_api_ut.pkb
 @@tests/imp_1_file_adapter_data_ut.pks

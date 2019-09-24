@@ -96,5 +96,50 @@ create or replace package body imp_1_file_adapter_data_ut as
     ut.expect(l_actual).to_equal(l_expected);
   end remove_csv_trailing_space_eol;
 --------------------------------------------------------------------------------
+  procedure multiline_cell_csv_import is
+    c_csv constant clob:=q'~4;"Lа ci darem 
+la mano";Don
+11;"Fin ch'han 
+dal 
+vino";Giovanni~';
+    c_eol constant varchar2(1 char):=chr(10);
+    c_enc constant varchar2(1 char):='"';
+    l_expected sys.ora_mining_varchar2_nt:=sys.ora_mining_varchar2_nt(
+      q'~4;"Lа ci darem 
+la mano";Don~',
+      q'~11;"Fin ch'han 
+dal 
+vino";Giovanni~'
+    );
+    l_actual sys.ora_mining_varchar2_nt;
+  begin
+    l_actual:=utils.split_varchar2(
+      i_string_value => c_csv,
+      i_delimiter => c_eol,
+      i_enclosure => c_enc);
+    ut.expect( anydata.convertcollection(l_actual) ).to_equal(
+       anydata.convertcollection(l_expected) );
+  end;
+--------------------------------------------------------------------------------
+  procedure escaping_enclosure_char is
+    c_csv constant clob
+      :='Piano Sonata No.17 in D minor, Op.31, No.2|Ludwig van Beethoven|"It is usually referred to as "The Tempest" (or Der Sturm in his native German)"';
+    c_del constant varchar2(1 char):='|';
+    c_enc constant varchar2(1 char):='"';
+    l_expected sys.ora_mining_varchar2_nt:=sys.ora_mining_varchar2_nt(
+      'Piano Sonata No.17 in D minor, Op.31, No.2',
+      'Ludwig van Beethoven',
+      'It is usually referred to as "The Tempest" (or Der Sturm in his native German)'
+      );
+    l_actual sys.ora_mining_varchar2_nt;    
+  begin
+    l_actual:=utils.split_varchar2(
+      i_string_value => c_csv,
+      i_delimiter => c_del,
+      i_enclosure => c_enc);
+    ut.expect( anydata.convertcollection(l_actual) ).to_equal(
+       anydata.convertcollection(l_expected) );
+  end;
+--------------------------------------------------------------------------------
 end imp_1_file_adapter_data_ut;
 /

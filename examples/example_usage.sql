@@ -2,7 +2,7 @@ set serveroutput on;
 
 begin
   utils.processing_file('countries.csv');
-  file_text_data_api.insert_rows(1);
+  file_text_data_api.insert_rows(i_frd_id => 1);
   utils.processing_file('Eviction_Notices.csv');
   utils.processing_file('tsv.tsv');
   utils.processing_file('unemployment.csv');
