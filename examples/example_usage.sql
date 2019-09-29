@@ -19,21 +19,25 @@ select * from file_meta_data;
 -- => tests !!!
 -- tsv
 begin
-  file_raw_data_api.insert_row(i_filename=>'test.tsv',
-  i_plain_text=>'Name	Age	Address
+  file_text_data_api.insert_rows(
+    i_frd_id=>file_raw_data_api.insert_row(
+                i_filename=>'test.tsv',
+                i_plain_text=>'Name	Age	Address
 Paul	23	1115 W Franklin
 Bessy the Cow	5	Big Farm Way
 Zeke	45	W Main St
 ',
-i_character_set => 'UTF-8'
+                i_ora_charset_id =>873
+              )
   );
-  file_text_data_api.insert_rows(i_filename=>'test.tsv');
 end;
 /
 -- csv
 begin
-  file_raw_data_api.insert_row(i_filename=>'countries.csv',
-  i_plain_text=>'"country","country_group","name_en","name_fr","name_de","latitude","longitude"
+  file_text_data_api.insert_rows(
+    i_frd_id=>file_raw_data_api.insert_row(i_filename=>'countries.csv',
+                                           i_plain_text=>
+'"country","country_group","name_en","name_fr","name_de","latitude","longitude"
 "at","eu","Austria","Autriche","Österreich","47.6965545","13.34598005"
 "be","eu","Belgium","Belgique","Belgien","50.501045","4.47667405"
 "bg","eu","Bulgaria","Bulgarie","Bulgarien","42.72567375","25.4823218"
@@ -65,8 +69,7 @@ begin
 "tr","non-eu","Turkey","Turquie","Türkei","38.95294205","35.43979471"
 "uk","eu","United Kingdom","Royaume-Uni","Vereinigtes Königreich","54.315447","-2.23261195"
 ',
-i_character_set => 'UTF-8'
+                                           i_ora_charset_id =>873)
   );
-  file_text_data_api.insert_rows(i_filename=>'countries.csv');
 end;
 /

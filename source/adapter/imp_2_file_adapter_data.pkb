@@ -52,7 +52,7 @@ as
                         blob_to_num( l_zipped_blob, 2, t_hd_ind + 28 ),
                         t_hd_ind + 46),
                       src_charset => l_ora_charset_name);
-dbms_output.put_line('filename '||l_filename);
+--dbms_output.put_line('filename '||l_filename);
         if (not l_filter_sheet_name or (
             l_filename like 'xl/worksheets/%' and 
             l_filename not like '%\_rels%' escape '\' )
@@ -431,9 +431,9 @@ dbms_output.put_line('filename '||l_filename);
                     instr( l_format_codes( i.xlsx_col_style + 1 ), 'd' ) > 0 and
                     instr( l_format_codes( i.xlsx_col_style + 1 ), 'm' ) > 0 )
                 then
-                dbms_output.put_line(i.xlsx_val);
-                dbms_output.put_line(DATE'1900-01-01');
-                dbms_output.put_line(DATE'1900-01-01' - 2);
+--                dbms_output.put_line(i.xlsx_val);
+--                dbms_output.put_line(DATE'1900-01-01');
+--                dbms_output.put_line(DATE'1900-01-01' - 2);
                                 
 --                    l_value := --to_char( 
 --                    case when 62 > 61 then '|'||i.xlsx_val||'|' else 'b' end;
@@ -679,8 +679,8 @@ l_num:=to_number(i.xlsx_val,'9999999D9999999', 'NLS_NUMERIC_CHARACTERS=''.,''');
   end;
   
   begin
-    dbms_output.put_line('start...');
-    dbms_output.put_line('size complete => '||dbms_lob.getlength(i_blob_value));
+--    dbms_output.put_line('start...');
+--    dbms_output.put_line('size complete => '||dbms_lob.getlength(i_blob_value));
 
     -- vc2 array bzgl. shared strings (?) via GESAMTblob holen (d.h. aktion vorlagern!)        
 --    extract_shared_strings( 
@@ -688,7 +688,7 @@ l_num:=to_number(i.xlsx_val,'9999999D9999999', 'NLS_NUMERIC_CHARACTERS=''.,''');
 --      p_strings => l_shared_strings );
 --      
     query_excel_shared_strings(i_excel_shared_strings => l_shared_strings);
-    dbms_output.put_line('shared strings => '||l_shared_strings.count);
+--    dbms_output.put_line('shared strings => '||l_shared_strings.count);
     -- vc2 array bzgl. format codes (?) via GESAMTblob holen (d.h. aktion vorlagern!)
 --    extract_date_styles( 
 --      p_xlsx    => i_blob_value,
@@ -704,7 +704,7 @@ l_num:=to_number(i.xlsx_val,'9999999D9999999', 'NLS_NUMERIC_CHARACTERS=''.,''');
     <<worksheet_loop>>
     for i in 1..l_sheets.count 
     loop
-      dbms_output.put_line(l_sheets.count||'--'||l_sheets(i));
+--      dbms_output.put_line(l_sheets.count||'--'||l_sheets(i));
       -- => TODO
       --xml_query_and_insert_in_table();
 --if l_original then      
@@ -722,7 +722,7 @@ l_num:=to_number(i.xlsx_val,'9999999D9999999', 'NLS_NUMERIC_CHARACTERS=''.,''');
       i_filename          => l_sheets(i));--in varchar2)
 --end if;
     
-      dbms_output.put_line('size sheet1 => '||dbms_lob.getlength(l_sheet_blob));
+--      dbms_output.put_line('size sheet1 => '||dbms_lob.getlength(l_sheet_blob));
       
       
       do_the_inserts(

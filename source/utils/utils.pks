@@ -28,12 +28,14 @@ as
   -- @The input string.
   -- @The delimiter (one character only).
   -- @The field enclosure character (one character only).
+  -- @Remove the enclosure from result (true) or not (false)
   function split_varchar2 (
-      i_string_value in varchar2,
-      i_delimiter    in varchar2,
-      i_enclosure    in varchar2)
+      i_string_value    in varchar2,
+      i_delimiter       in varchar2,
+      i_enclosure       in varchar2,
+      i_trim_enclosure  in boolean default true)
     return sys.ora_mining_varchar2_nt deterministic;
-    
+
   -- This procedure insert a file into FILE_RAW_DATA and then tries to extract
   -- the content to FILE_TEXT_DATA.
   -- @The name of the file.

@@ -97,26 +97,26 @@ create or replace package body imp_1_file_adapter_data_ut as
   end remove_csv_trailing_space_eol;
 --------------------------------------------------------------------------------
   procedure multiline_cell_csv_import is
-    c_csv constant clob:=q'~4;"Lа ci darem 
+    c_csv constant clob:='4;"Lа ci darem
 la mano";Don
-11;"Fin ch'han 
+11;"Fin ch''han 
 dal 
-vino";Giovanni~';
+vino";Giovanni';
     c_eol constant varchar2(1 char):=chr(10);
     c_enc constant varchar2(1 char):='"';
     l_expected sys.ora_mining_varchar2_nt:=sys.ora_mining_varchar2_nt(
-      q'~4;"Lа ci darem 
-la mano";Don~',
-      q'~11;"Fin ch'han 
+      '4;"Lа ci darem'||chr(10)||'la mano";Don',
+      '11;"Fin ch''han 
 dal 
-vino";Giovanni~'
+vino";Giovanni'
     );
     l_actual sys.ora_mining_varchar2_nt;
   begin
     l_actual:=utils.split_varchar2(
       i_string_value => c_csv,
       i_delimiter => c_eol,
-      i_enclosure => c_enc);
+      i_enclosure => c_enc,
+      i_trim_enclosure => false);
     ut.expect( anydata.convertcollection(l_actual) ).to_equal(
        anydata.convertcollection(l_expected) );
   end;

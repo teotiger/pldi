@@ -39,7 +39,8 @@ as
                                         -- what happens with windows newline?
                                         --  2 chars CRLF chr(13)||chr(10)
                                         i_delimiter => c_lf,
-                                        i_enclosure => l_meta.enclosure);
+                                        i_enclosure => l_meta.enclosure,
+                                        i_trim_enclosure => false);
       <<row_loop>>
       for i in 1..l_row_arr.count loop
         l_cell_arr := utils.split_varchar2(i_string_value => l_row_arr(i),

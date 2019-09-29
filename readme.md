@@ -83,6 +83,13 @@ PLDI is released under the [MIT license](https://github.com/teotiger/pldi/blob/m
 
 ## Version History
 
+Version 0.9.9 - September 29, 2019
+
+- bugfix csv adapter (`imp_1_file_adapter_data`/`utils`):
+  - remove support for enclosure char inside text with enclosure 
+  - bugfix handling of linebreaks inside text with enclosure
+- `example_usage.sql` updated
+
 Version 0.9.8 - September 24, 2019
 
 - bugfix csv adapter (`imp_1_file_adapter_data`):

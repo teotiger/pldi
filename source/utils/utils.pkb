@@ -3,7 +3,7 @@ as
 --------------------------------------------------------------------------------
   function version return varchar2 deterministic
   is
-    c_version constant varchar2(8 char) := 'v0.9.8';
+    c_version constant varchar2(8 char) := 'v0.9.9';
   begin
     return c_version;
   end version;
@@ -73,159 +73,94 @@ as
   end clob_to_blob;
 --------------------------------------------------------------------------------
   function split_varchar2 (
-      i_string_value in varchar2,
-      i_delimiter    in varchar2,
-      i_enclosure    in varchar2)
+      i_string_value    in varchar2,
+      i_delimiter       in varchar2,
+      i_enclosure       in varchar2,
+      i_trim_enclosure  in boolean)
     return sys.ora_mining_varchar2_nt deterministic
   is
-    c_eol constant char(1 char):=chr(10);
--->  https://raw.githubusercontent.com/mortenbra/alexandria-plsql-utils/master/ora/csv_util_pkg.pkb
-    p_separator varchar2(1 char) := i_delimiter;
-    l_returnvalue      sys.ora_mining_varchar2_nt := sys.ora_mining_varchar2_nt();
-    l_length           pls_integer     := length(i_string_value);
-    l_idx              binary_integer  := 1;
-    l_quoted           boolean         := false;  
-    l_quote  constant  varchar2(1 char) := i_enclosure;
-    l_start            boolean := true;
-    l_current          varchar2(1 char);
-    l_next             varchar2(1 char);
-    l_position         pls_integer := 1;
-    l_current_column   varchar2(32767 char);
-    
-    --Set the start flag, save our column value
-    procedure save_column is
+    l_del varchar2(1 char) not null:=i_delimiter;
+    l_out sys.ora_mining_varchar2_nt:=sys.ora_mining_varchar2_nt();
+    l_len pls_integer:=length(i_string_value);
+    l_idx pls_integer:=1;
+    l_pos pls_integer:=1;
+    l_is_new boolean:=true;
+    l_current varchar2(1 char);
+    l_next varchar2(1 char);
+    l_value varchar2(32767 char):=null;
+    l_is_quoted boolean:=false;  
+    l_quote varchar2(1 char):=i_enclosure;
+    l_quote_count pls_integer:=0;
+    -- save value and reset start flag
+    procedure save_value is
     begin
-      l_start := true;
-      l_returnvalue.extend;        
-      l_returnvalue(l_idx) := l_current_column;
-      l_idx := l_idx + 1;            
-      l_current_column := null;
-    end save_column;
-    
-    --Append the value of l_current to l_current_column
-    procedure append_current is
+      l_is_new:=true;
+      l_is_quoted:=false;
+      l_out.extend;
+      l_out(l_idx):=l_value;
+      l_idx:=l_idx+1;
+      l_value:=null;
+    end save_value;  
+    -- append a char (l_current) to the string value (l_value)
+    procedure append_to_value is
     begin
-      l_current_column := l_current_column || l_current;
-    end append_current;
+      l_value:=l_value||l_current;
+    end append_to_value;
+
   begin
+
+    while l_pos <= l_len
+    loop
+      -- find the current and the next character
+      l_current:=substr(i_string_value, l_pos, 1);
+      l_next:=substr(i_string_value, l_pos+1, 1);
   
-    /*
-   
-    Purpose:      convert CSV line to array of values
-   
-    Remarks:      based on code from http://www.experts-exchange.com/Database/Oracle/PL_SQL/Q_23106446.html
-   
-    Who     Date        Description
-    ------  ----------  --------------------------------
-    MBR     31.03.2010  Created
-    KJS     20.04.2011  Modified to allow double-quote escaping
-    MBR     23.07.2012  Fixed issue with multibyte characters, thanks to Vadi..., see http://code.google.com/p/plsql-utils/issues/detail?id=13
-   
-    */
-  
-    while l_position <= l_length loop
-    
-      --Set our variables with the current and next characters
-      l_current := substr(i_string_value, l_position, 1);
-      l_next := substr(i_string_value, l_position + 1, 1);    
-      
-      if l_start then
-        l_start := false;
-        l_current_column := null;
-      
-        --Check for leading quote and set our flag
-        l_quoted := l_current = l_quote;
-        
-        --We skip a leading quote character
-        if l_quoted then goto loop_again; end if;
+      -- count quotes to avoid "false" delimiters
+      if l_quote is not null and l_current=l_quote then
+        l_quote_count:=l_quote_count+1;
       end if;
   
-      --Check to see if we are inside of a quote    
-      if l_quoted then      
-  
-        --The current character is a quote - is it the end of our quote or does
-        --it represent an escaped quote?
-        if l_current = l_quote then
-  
-          --If the next character is a quote, this is an escaped quote.
-          if l_next = l_quote then
-          
-            --Append the literal quote to our column
-            append_current;
-            
-            --Advance the pointer to ignore the duplicated (escaped) quote
-            l_position := l_position + 1;
-            
-          --If the next character is a separator, current is the end quote
-          elsif l_next = p_separator then
-            
-            --Get out of the quote and loop again - we will hit the separator next loop
-            l_quoted := false;
-            goto loop_again;
-          
-          --Ending quote, no more columns
-          elsif l_next is null then
-  
-            --Save our current value, and iterate (end loop)
-            save_column;
-            goto loop_again;          
-            
-          --Next character is not a quote
-          else
-            append_current;
+      -- reset variables
+      if l_is_new then
+        l_is_new:=false;
+        -- check for leading quote and set quote flag
+        l_is_quoted:=l_current=l_quote and l_quote is not null;
+        if l_is_quoted then
+          if i_trim_enclosure then
+            l_pos:=l_pos+1;
           end if;
-        else
-        
-          --The current character is not a quote - append it to our column value
-          append_current;     
+          continue;
         end if;
-        
-      -- Not quoted
+      end if;
+  
+      -- standard or quoted?
+      if not l_is_quoted then
+        if l_current=l_del and mod(l_quote_count,2)=0 then
+          save_value;
+        else
+          append_to_value;
+        end if;
       else
-      
-      
- 
---        --Check if the current value is a separator, save or append as appropriate
---        if l_current = p_separator then
---          save_column;
---        else
---          append_current;
---        end if;
---      end if;
-      
-
-
-        --Check if current value is a separator, save or append as appropriate
-        if l_current = p_separator and p_separator != c_eol 
-        then
-          save_column;
-        -- maybe multiline cell with enclosure
-        elsif l_current = p_separator and p_separator = c_eol
-        then
-          if l_quote is null or 
-             mod(regexp_count(l_current_column, l_quote) -                      -- total quotes
-                 regexp_count(l_current_column, '('||l_quote||')\1')*2          -- escaped quotes
-             ,2)=0
-          then
-            save_column;
-          else
-            append_current;
+        if l_current=l_quote and nvl(l_next,l_del)=l_del then
+          if not i_trim_enclosure then
+            append_to_value;
           end if;
+          l_pos:=l_pos+1;
+          save_value;
         else
-          append_current;
+          append_to_value;
         end if;
       end if;
-
-      --Check to see if we've used all our characters
-      if l_next is null then
-        save_column;
+  
+      -- at the end don't forget to save...
+      if l_pos=l_len then
+        save_value;
       end if;
-
-      --The continue statement was not added to PL/SQL until 11g. Use GOTO in 9i.
-      <<loop_again>> l_position := l_position + 1;
-    end loop ;
-
-    return l_returnvalue;
+  
+      l_pos:=l_pos+1;
+    end loop;
+  
+    return l_out;
   end split_varchar2;
 --------------------------------------------------------------------------------
   procedure processing_file (
