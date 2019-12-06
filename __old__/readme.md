@@ -1,57 +1,3 @@
-# Data Model
-
-```asciiarmor
-
-                        |FILE_META_DATA|
-|FILE_RAW_DATA|    -->          +              -->   |FILE_TEXT_DATA|   
-                       |FILE_ADAPTER_DATA|
-                     
-|   F   I   L   E   _   S   T   A   T   U   S   _   D   A   T   A   |
-```
-
-
-
-You can pass the following parameters:
-
-1. `pldi_user` (Default: **pldi**)
-
-   A schema for this user will be created.
-
-2. `pldi_password` Default: **pldi**)
-
-   The password for this user. 
-
-3. `pldi_path_name` (Default: **/opt/ora_files**)
-
-   A valid directory path where Oracle DB has read access.
-
-4. `pldi_directory` (Default: **PLDI_FILES**)
-
-   The name for the directory object.
-
-5. `pldi_max_bytes` (Default: **524288000**)
-
-  - a positive number (>0):
-     All rows in `FILE_RAW_DATA` will be deleted if the running total of filesize (starting from the newest file) is greater.
-  - zero (=0):
-     Never will any file deleted from `FILE_RAW_DATA.`
-  - a negative number (<0):
-     The new row in `FILE_RAW_DATA` will be deleted immediately after file processing.
-
-6. `pldi_tests_flag` (Default: **0**)
-
-   PLDI use [utPLSQL](http://utplsql.org/) for a lot of UnitTests. If these test packages should be installed pass 1.
-
-:: Here is an example in Linux doing the whole installation in one 
-
-:: headless only para 4-6
-
-Short explanation of the number passed by`pldi_max_bytes`:
-
-- coming soon...
-
-  
-
 # PLDI
 
 ## Introduction
@@ -120,10 +66,6 @@ select * from table(ut.run());
 
 ## Data Model
 
---> TODO picture!
-
-
-
 ![Data Model](images/data_model_pldi.jpg)
 
 Every table has its own api package for DML operations.
@@ -141,21 +83,24 @@ PLDI is released under the [MIT license](https://github.com/teotiger/pldi/blob/m
 
 ## Version History
 
-Version 2.0.0 - January ??, 2020
-
-- complete code refactoring
-  - new `FILE_STATUS_DATA` table with logging information
-  - more efficient csv adapter
-  - more unittests with better code coverage 
-
-...
-
 Version 1.0.0 - October 14, 2019
 
 - bugfix csv adapter (`imp_1_file_adapter_data`/`utils`):
   - support for  Windows OS line ending (CRLF)
 - new table `FILE_PROCESSING_DATA` with logging infos and corresponding `FILE_PROCESSING_DATA_API` package
 - new function `PROCESSING_FROM_RAW` and procedure `PROCESSING_FROM_TEXT` to restart file processing in `UTILS` package
+
+
+
+
+
+
+
+!!!! COMPLETE NEW!!!!!!!!!!!!!!!
+
+
+
+
 
 Version 0.9.9 - September 29, 2019
 

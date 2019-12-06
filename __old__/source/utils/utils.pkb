@@ -3,7 +3,7 @@ as
 --------------------------------------------------------------------------------
   function version return varchar2 deterministic
   is
-    c_version constant varchar2(8 char) := 'v0.9.9';
+    c_version constant varchar2(8 char) := 'v1.0.0';
   begin
     return c_version;
   end version;
@@ -55,7 +55,7 @@ as
     l_dest_offset integer := 1;
     l_src_offset integer := 1;
     l_lang_context integer := sys.dbms_lob.default_lang_ctx;
-    l_warning  integer;
+    l_warning integer;
   begin
     sys.dbms_lob.createtemporary(
       lob_loc => l_blob,
@@ -163,32 +163,127 @@ as
     return l_out;
   end split_varchar2;
 --------------------------------------------------------------------------------
-  procedure processing_file (
-      i_filename in varchar2)
+  function format_seconds(
+      a_seconds in number)
+    return varchar2 deterministic
   is
-    l_filename file_raw_data.filename%type not null:=i_filename;
-    l_ftd_id   file_text_data.ftd_id%type;
-    l_plsql    file_meta_data.plsql_after_processing%type;
+    c_ss constant pls_integer:=60;
+    c_mm constant pls_integer:=3600;
+    c_pl constant pls_integer:=2;
+    c_pc constant varchar2(1 char):='0';
+    c_dp constant varchar2(1 char):=':';
+    l_seconds naturaln:=a_seconds;
   begin
-    l_ftd_id:=file_text_data_api.insert_rows(
-                i_frd_id => file_raw_data_api.insert_row(i_filename=>l_filename)
-              );
+    return 
+      case when floor(l_seconds/c_mm)>0 
+        then floor(l_seconds/c_mm)||c_dp 
+      end
+      || lpad( floor(mod(l_seconds,c_mm)/c_ss) ,c_pl,c_pc)
+      || c_dp
+      || lpad( mod(l_seconds,c_ss) ,c_pl,c_pc);
+  end format_seconds;
+--------------------------------------------------------------------------------
+  function processing_from_raw (
+      i_frd_id in number)
+    return number
+  is
+    l_frd_id file_raw_data.frd_id%type not null:=i_frd_id;
+  begin
+    return file_text_data_api.insert_rows(i_frd_id => l_frd_id);
+  end processing_from_raw;
+--------------------------------------------------------------------------------
+  procedure processing_from_text (
+      i_ftd_id in number)
+  is
+    l_ftd_id file_text_data.ftd_id%type not null:=i_ftd_id;
+    l_fmd_id file_meta_data.fmd_id%type;
+    l_plsql  file_meta_data.plsql_after_processing%type;
+  begin
+    select max(fmd_id)
+      into l_fmd_id
+      from file_text_data
+     where ftd_id=l_ftd_id;
 
     select max(plsql_after_processing)
       into l_plsql
       from file_meta_data fmd 
-     where l_filename like case when fmd.filter_is_regular_expression=0 
-                            then replace(fmd.filename_match_filter, '*', '%')
-                            else l_filename
-                           end
-       and regexp_like(l_filename, case when fmd.filter_is_regular_expression=1 
-                                    then fmd.filename_match_filter 
-                                    else l_filename
-                                   end);
+     where fmd_id=l_fmd_id;
 
     if l_plsql is not null and l_ftd_id is not null then
       execute immediate replace(l_plsql, '%FTD_ID%', l_ftd_id);
     end if;
+  end processing_from_text;
+--------------------------------------------------------------------------------
+  procedure processing_file (
+      i_filename in varchar2)
+  is
+    l_filename  file_raw_data.filename%type not null:=i_filename;
+    l_frd_id    file_raw_data.frd_id%type;
+    l_ftd_id    file_text_data.ftd_id%type;
+    l_fmd_id    file_meta_data.fmd_id%type;
+    l_fad_id    file_adapter_data.fad_id%type;
+    l_filesize  file_raw_data.filesize%type;
+    l_start     number;
+    --
+    procedure stopwatch_finish(i_step in number) is
+    begin
+      case i_step
+        when 1 then
+          file_status_data_api.insert_row (
+            i_frd_id        => l_frd_id,           
+            i_filename      => 'file_raw_data_api.insert_row mit out para',
+            i_filesize      => 10,--in file_raw_data.filesize%type,
+            i_seconds_step1 => dbms_utility.get_time-l_start
+          );
+        when 2 then
+          null;
+          -- update ftd_id!
+      end case;
+    end stopwatch_finish;
+  begin
+    -- step 1 -- reading file content to table FILE_RAW_DATA
+    l_start:=dbms_utility.get_time;
+    l_frd_id:=file_raw_data_api.insert_row(i_filename => l_filename);
+    stopwatch_finish(1);
+
+    -- step 2 -- try to extract content to FILE_TEXT_DATA
+    file_text_data_api.insert_rows(
+      i_frd_id => l_frd_id,
+      o_ftd_id => l_ftd_id,
+      o_fmd_id => l_fmd_id,
+      o_fad_id => l_fad_id,
+      o_filename => l_filename,
+      o_filesize => l_filesize);
+    stopwatch_finish(2);
+
+    -- step 3 -- try to execute PLSQL Code if configured
+    if l_ftd_id is not null then
+      processing_from_text(i_ftd_id => l_ftd_id);
+      stopwatch_finish(3);
+    end if;
+--    l_filename file_raw_data.filename%type not null:=i_filename;
+--    l_ftd_id   file_text_data.ftd_id%type;
+--    l_plsql    file_meta_data.plsql_after_processing%type;
+--  begin
+--    l_ftd_id:=file_text_data_api.insert_rows(
+--                i_frd_id => file_raw_data_api.insert_row(i_filename=>l_filename)
+--              );
+--
+--    select max(plsql_after_processing)
+--      into l_plsql
+--      from file_meta_data fmd 
+--     where l_filename like case when fmd.filter_is_regular_expression=0 
+--                            then replace(fmd.filename_match_filter, '*', '%')
+--                            else l_filename
+--                           end
+--       and regexp_like(l_filename, case when fmd.filter_is_regular_expression=1 
+--                                    then fmd.filename_match_filter 
+--                                    else l_filename
+--                                   end);
+--
+--    if l_plsql is not null and l_ftd_id is not null then
+--      execute immediate replace(l_plsql, '%FTD_ID%', l_ftd_id);
+--    end if;
   end processing_file;
 --------------------------------------------------------------------------------
 end utils;

@@ -1,18 +1,16 @@
 create or replace package file_text_data_api authid definer 
 as
 
-  -- Add new rows to FILE_TEXT_DATA.
+  -- Add a new row to FILE_TEXT_DATA and return FTD_ID, FMD_ID and FAD_ID.
   procedure insert_rows (
-    i_frd_id  in file_raw_data.frd_id%type);
-    
-  -- Add new rows to FILE_TEXT_DATA and returns the corresponding FTD_ID.
-  function insert_rows (
-      i_frd_id  in file_raw_data.frd_id%type)
-    return number;
+    i_frd_id in  number,
+    o_ftd_id out number,
+    o_fmd_id out number,
+    o_fad_id out number
+  );
 
-  -- Remove rows from FILE_TEXT_DATA.
-  procedure delete_rows (
-    i_ftd_id in file_text_data.ftd_id%type);
-    
+  -- Remove any row from FILE_TEXT_DATA where the FTD_ID match.
+  procedure delete_rows (i_ftd_id in number);
+
 end file_text_data_api;
 /

@@ -7,7 +7,11 @@ prompt Drop tables...
 drop table file_text_data purge;
 drop table file_meta_data purge;
 drop table file_adapter_data purge;
+drop table file_status_data purge;
 drop table file_raw_data purge;
+--text
+--meta
+--adapter
 prompt ...done!
 prompt 
 prompt Drop packages, sequences and views...

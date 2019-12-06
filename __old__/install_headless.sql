@@ -20,6 +20,7 @@ prompt Create tables...
 @source/table/file_raw_data.sql
 @source/table/file_meta_data.sql
 @source/table/file_text_data.sql
+@source/table/file_processing_data.sql
 prompt ...done!
 prompt
 prompt Create types, packages and views...
@@ -28,15 +29,19 @@ prompt Create types, packages and views...
 @@source/api/file_raw_data_api.pks
 @@source/api/file_meta_data_api.pks
 @@source/api/file_text_data_api.pks
+@@source/api/file_processing_data_api.pks
 @@source/api/file_adapter_data_api.pkb
 @@source/api/file_raw_data_api.pkb
 @@source/api/file_meta_data_api.pkb
 @@source/api/file_text_data_api.pkb
+@@source/api/file_processing_data_api.pkb
 @@source/utils/utils.pkb &&pldi_directory
 @@source/adapter/imp_1_file_adapter_data.pks
 @@source/adapter/imp_1_file_adapter_data.pkb
 @@source/adapter/imp_2_file_adapter_data.pks
 @@source/adapter/imp_2_file_adapter_data.pkb
+@@source/adapter/imp_3_file_adapter_data.pks
+@@source/adapter/imp_3_file_adapter_data.pkb
 @@source/utils/file_content_v.vw
 prompt ...done!
 prompt

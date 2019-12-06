@@ -36,11 +36,31 @@ as
       i_trim_enclosure  in boolean default true)
     return sys.ora_mining_varchar2_nt deterministic;
 
+  -- This function formats the number of seconds.
+  -- @The number of seconds.
+  function format_seconds(
+      a_seconds in number)
+    return varchar2 deterministic;
+
+  -- This function tries to extract the content of a given ID from FILE_RAW_DATA
+  -- and return the corresponding ID from FILE_TEXT_DATA.
+  -- @The ID from FILE_RAW_DATA.
+  function processing_from_raw (
+      i_frd_id in number)
+    return number;
+
+  -- This procedure use a given ID from FILE_TEXT_DATA and finally execute some
+  -- PLSQL code if it is configured in FILE_META_DATA.
+  -- @The ID from FILE_TEXT_DATA.
+  procedure processing_from_text (
+      i_ftd_id in number);
+
   -- This procedure insert a file into FILE_RAW_DATA and then tries to extract
-  -- the content to FILE_TEXT_DATA.
+  -- the content to FILE_TEXT_DATA. Finally it execute some PLSQL code if it is
+  -- configured in FILE_META_DATA.
   -- @The name of the file.
   procedure processing_file (
       i_filename in varchar2);
-      
+
 end utils;
 /
