@@ -18,7 +18,7 @@ column pldi_max_bytes new_value pldi_max_bytes noprint
 column pldi_tests_flag new_value pldi_tests_flag noprint
 
 select coalesce('&&1','PLDI_FILES') pldi_directory,
-       coalesce('&&2','8192') pldi_max_bytes,
+       coalesce('&&2','10241024') pldi_max_bytes,
        
        
 --       coalesce('&&3','0') pldi_tests_flag                                      -- TODO !!!!!!!!!!!!!!!!!

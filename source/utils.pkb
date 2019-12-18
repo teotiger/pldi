@@ -165,11 +165,11 @@ function processing_from_raw (
 
     -- step 2 -- try to extract content to FILE_TEXT_DATA
     l_start:=dbms_utility.get_time;
---    file_text_data_api.insert_rows(
---      i_frd_id => l_frd_id,
---      o_ftd_id => l_ftd_id,
---      o_fmd_id => l_fmd_id,
---      o_fad_id => l_fad_id);
+    file_text_data_api.insert_rows(
+      i_frd_id => l_frd_id,
+      o_ftd_id => l_ftd_id,
+      o_fmd_id => l_fmd_id,
+      o_fad_id => l_fad_id);
     file_status_data_api.update_row(
       i_fsd_id    => l_fsd_id,
       i_ftd_id    => l_ftd_id,
@@ -229,7 +229,8 @@ function processing_from_raw (
     rollback;
     file_status_data_api.update_row(
       i_fsd_id => l_fsd_id,
-      i_error_message => sqlerrm);
+      i_error_message => dbms_utility.format_error_stack
+                         ||dbms_utility.format_error_backtrace);
     raise;
   end processing_file;
 --------------------------------------------------------------------------------

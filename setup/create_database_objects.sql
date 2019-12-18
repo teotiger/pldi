@@ -14,16 +14,16 @@ prompt Create api packages...
 @../source/api/file_status_data_api.pks
 @../source/api/file_adapter_data_api.pks
 @../source/api/file_meta_data_api.pks
--->TODO text
--->TODO imp_1_file_adapter_data
+@../source/api/file_text_data_api.pks
+@../source/adapter/imp_1_file_adapter_data.pks
 -------->packages bodies...
 @../source/utils.pkb &&pldi_directory &&pldi_max_bytes
 @../source/api/file_raw_data_api.pkb
 @../source/api/file_status_data_api.pkb
 @../source/api/file_adapter_data_api.pkb
 @../source/api/file_meta_data_api.pkb
--->TODO text
--->TODO imp_1_file_adapter_data
+@../source/api/file_text_data_api.pkb
+@../source/adapter/imp_1_file_adapter_data.pkb
 prompt ...done!
 prompt
 

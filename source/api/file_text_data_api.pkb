@@ -12,7 +12,6 @@ as
     l_blob_value file_raw_data.blob_value%type;
     l_fmd_row file_meta_data%rowtype;
     l_sql varchar2(4000 char);
-    l_ftd_id file_text_data.ftd_id%type;
   begin
     select filename, blob_value
       into l_filename, l_blob_value
@@ -31,12 +30,15 @@ as
                                     else l_filename
                                    end);
 
-    l_ftd_id:=file_text_data_seq.nextval;
+    o_ftd_id:=file_text_data_seq.nextval;
+    o_fmd_id :=l_fmd_row.fmd_id;
+    o_fad_id:=l_fmd_row.fad_id;
+
     l_sql:='begin imp_'||l_fmd_row.fad_id||'_file_adapter_data'||
            '.insert_file_text_data(:1, :2, :3, :4, :5, :6); end;';
     execute immediate l_sql using l_frd_id,
                                   l_fmd_row.fmd_id,
-                                  l_ftd_id,
+                                  o_ftd_id,
                                   l_blob_value,
                                   l_fmd_row.ora_charset_id,
                                   l_fmd_row.ora_charset_name;
