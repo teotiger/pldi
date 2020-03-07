@@ -1,10 +1,9 @@
-prompt Create tables, sequences and views...
+prompt Create tables and sequences
 @../source/data/file_raw_data.sql
 @../source/data/file_status_data.sql
 @../source/data/file_adapter_data.sql
 @../source/data/file_meta_data.sql
 @../source/data/file_text_data.sql
--->TODO file_content_v.vw
 prompt ...done!
 prompt
 
@@ -27,9 +26,10 @@ prompt Create api packages...
 prompt ...done!
 prompt
 
+-- code coverage not working in native compilation mode
 column script_name new_value l_db_script
 set termout off
-select decode(lower('&&pldi_tests_flag.'),'1','create_database_tests.sql','empty.sql') script_name
+select decode(lower('&&pldi_tests_flag.'),'1','create_database_tests.sql','create_native_compilation.sql') script_name
   from dual;
 set termout on
 @@&&l_db_script.

@@ -14,5 +14,8 @@ create or replace package imp_1_file_adapter_data_ut authid definer as
   -- %test(Check escaping enclosure char)
   procedure escaping_enclosure_char;
 
+  -- %test(Check if all the columns are filled)
+  procedure fill_all_colums;
+
 end imp_1_file_adapter_data_ut;
 /

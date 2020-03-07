@@ -29,8 +29,6 @@ select coalesce('&&1','PLDI_FILES') pldi_directory,
 
 @create_database_objects.sql &&pldi_directory &&pldi_max_bytes &&pldi_tests_flag
 
-@create_native_compilation.sql
-
 prompt Create adapter data...
 begin
   file_adapter_data_api.insert_row(i_keyword => 'CSV',
