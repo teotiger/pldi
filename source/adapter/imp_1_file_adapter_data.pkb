@@ -5,10 +5,10 @@ as
   c_lf constant varchar2(1 char):=chr(10);
   c_cr constant varchar2(1 char):=chr(13);
 --------------------------------------------------------------------------------
-  function blob_to_clob(
+  function blob_to_unix_clob(
       i_blob_value      in blob,
       i_ora_charset_id  in pls_integer)
-    return clob
+    return clob deterministic
   is
     l_blob_value blob not null:=i_blob_value;
     l_ora_charset_id number not null:=i_ora_charset_id;
@@ -30,12 +30,12 @@ as
       blob_csid => l_ora_charset_id,
       lang_context => l_lang_context,
       warning => l_warning);
-    -- windows line endings
+    -- adjust windows line endings to unix
     l_clob:=replace(l_clob,c_cr||c_lf,c_lf);
-    -- mac line endings
+    -- adjust mac line endings to unix
     l_clob:=replace(l_clob,c_cr,c_lf);
     return l_clob;
-  end blob_to_clob;
+  end blob_to_unix_clob;
 --------------------------------------------------------------------------------
   function split_vc2(
       i_string_value    in varchar2,
@@ -145,10 +145,14 @@ as
     l_clob clob;
     l_last_char varchar2(1 char);
     ---
-    function trimit(i_str in varchar2) return varchar2 deterministic is
+    function trimit(
+        i_str in varchar2, 
+        i_enc in varchar2 default l_meta.enclosure)
+      return varchar2 deterministic 
+    is
     begin
-      return case when l_meta.enclosure is not null 
-              then trim(both l_meta.enclosure from i_str) 
+      return case when i_enc is not null 
+              then trim(both i_enc from i_str) 
               else i_str
              end;
     end trimit;
@@ -159,29 +163,24 @@ as
       l_cell_arr sys.ora_mining_varchar2_nt;
       l_ftd_row  file_text_data%rowtype;
     begin
-      l_row_arr := split_vc2(i_string_value => l_rest||i_buffer, 
-                                        -- what happens with windows newline?
-                                        --  2 chars CRLF chr(13)||chr(10)
-                                        i_delimiter => c_lf,
-                                        i_enclosure => l_meta.enclosure,
-                                        i_trim_enclosure => false);
+      l_row_arr := split_vc2(i_string_value => l_rest||i_buffer,
+                             i_delimiter => c_lf,
+                             i_enclosure => l_meta.enclosure,
+                             i_trim_enclosure => false);
       <<row_loop>>
       for i in 1..l_row_arr.count loop
         l_cell_arr := split_vc2(i_string_value => l_row_arr(i),
-                                           i_delimiter => l_meta.delimiter,
-                                           i_enclosure => l_meta.enclosure);
-
+                                i_delimiter => l_meta.delimiter,
+                                i_enclosure => l_meta.enclosure);
         if i=l_row_arr.count and i_is_part then
           l_rest := l_row_arr(i);
         else
-          l_ridx:=l_ridx+1;        
+          l_ridx:=l_ridx+1;
           l_ftd_row:=null;
           l_ftd_row.ftd_id := i_ftd_id;
---          l_ftd_row.frd_id := i_frd_id;
---          l_ftd_row.fmd_id := i_fmd_id;
           l_ftd_row.timestamp_insert := systimestamp;
-          l_ftd_row.USERNAME_INSERT := 'Hans';
-          l_ftd_row.row_number := l_ridx;                                                        
+          l_ftd_row.username_insert := utils.username;
+          l_ftd_row.row_number := l_ridx;
           <<cell_loop>>
           for j in 1..l_cell_arr.count loop
             case j
@@ -414,29 +413,27 @@ as
       into l_meta
       from file_meta_data
      where fmd_id=i_fmd_id;  
- 
-    l_clob:=blob_to_clob(i_blob_value => i_blob_value,
-                               i_ora_charset_id => i_ora_charset_id);
-    
+
+    l_clob:=blob_to_unix_clob(i_blob_value => i_blob_value,
+                              i_ora_charset_id => i_ora_charset_id);
+
     -- remove trailing spaces and linebreaks
     l_last_char:=sys.dbms_lob.substr(
                     lob_loc => l_clob,
                     amount => 1,
-                    offset => sys.dbms_lob.getlength(l_clob) - 1);
-    while l_last_char in (c_lf, c_cr, c_sp)
+                    offset => sys.dbms_lob.getlength(l_clob));
+    while l_last_char in (c_lf, c_sp)
     loop
       l_clob:=rtrim(l_clob, c_lf);
-      l_clob:=rtrim(l_clob, c_cr);
       l_clob:=rtrim(l_clob, c_sp);
       l_last_char:=sys.dbms_lob.substr(
                     lob_loc => l_clob,
                     amount => 1,
-                    offset => sys.dbms_lob.getlength(l_clob) - 1);
+                    offset => sys.dbms_lob.getlength(l_clob));
     end loop;
-    
+
     dump_clob(i_plain_text => l_clob);    
---    commit;
-    
+
   end insert_file_text_data;
 --------------------------------------------------------------------------------
 end imp_1_file_adapter_data;

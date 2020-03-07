@@ -144,6 +144,8 @@ function processing_from_raw (
 
   procedure processing_file(i_filename in varchar2)
   is
+    c_no_data_found_error_message constant file_status_data.error_message%type
+      :='WARN: No matching configuration found in FILE_META_DATA.';
     l_filename  file_raw_data.filename%type not null:=i_filename;
     l_fsd_id    file_status_data.fsd_id%type;
     l_frd_id    file_raw_data.frd_id%type;
@@ -162,6 +164,7 @@ function processing_from_raw (
       i_fsd_id    => l_fsd_id,
       i_frd_id    => l_frd_id,
       i_seconds_1 => ((dbms_utility.get_time-l_start)/100));
+    commit;
 
     -- step 2 -- try to extract content to FILE_TEXT_DATA
     l_start:=dbms_utility.get_time;
@@ -176,8 +179,8 @@ function processing_from_raw (
       i_fmd_id    => l_fmd_id,
       i_fad_id    => l_fad_id,
       i_seconds_2 => ((dbms_utility.get_time-l_start)/100));
-    
-    
+    commit;
+
 /*
     -- step 3 -- try to execute PLSQL Code if configured
     if l_ftd_id is not null then
@@ -225,13 +228,19 @@ function processing_from_raw (
     -- final transaction commit
     commit;
 
-  exception when others then
-    rollback;
-    file_status_data_api.update_row(
-      i_fsd_id => l_fsd_id,
-      i_error_message => dbms_utility.format_error_stack
-                         ||dbms_utility.format_error_backtrace);
-    raise;
+  exception 
+    when no_data_found then 
+      rollback;
+      file_status_data_api.update_row(
+        i_fsd_id => l_fsd_id,
+        i_error_message => c_no_data_found_error_message);
+    when others then
+      rollback;
+      file_status_data_api.update_row(
+        i_fsd_id => l_fsd_id,
+        i_error_message => dbms_utility.format_error_stack
+                           ||dbms_utility.format_error_backtrace);
+      raise;
   end processing_file;
 --------------------------------------------------------------------------------
 

@@ -46,5 +46,6 @@ prompt
 
 alter session set current_schema = &&pldi_user;
 @create_database_objects.sql &&pldi_directory &&pldi_max_bytes &&pldi_tests_flag
+@create_native_compilation.sql
 
 exit

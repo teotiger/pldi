@@ -12,6 +12,7 @@ prompt Create utPLSQL test packages...
 @@../tests/api/file_meta_data_api_ut.pkb
 @@../tests/api/file_text_data_api_ut.pks
 @@../tests/api/file_text_data_api_ut.pkb
---> imp_1_file_adapter_data_ut.pks
+@@../tests/adapter/imp_1_file_adapter_data_ut.pks
+@@../tests/adapter/imp_1_file_adapter_data_ut.pkb
 prompt ...done!
 prompt

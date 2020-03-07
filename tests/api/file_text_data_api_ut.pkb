@@ -44,6 +44,20 @@ create or replace package body file_text_data_api_ut as
 
   end insert_rows_example;
 --------------------------------------------------------------------------------
+  procedure insert_rows_fails_example
+  is
+    l_tmp number;
+  begin
+    file_text_data_api.insert_rows(
+      i_frd_id => file_raw_data_api.insert_row(
+        i_filename => c_filename,
+        i_blob_value => sys.utl_raw.cast_to_raw(c_filedata)
+      ),
+      o_ftd_id => l_tmp,
+      o_fmd_id => l_tmp,
+      o_fad_id => l_tmp);
+  end insert_rows_fails_example;
+--------------------------------------------------------------------------------
   procedure delete_rows_example is
     l_ftd_id file_text_data.ftd_id%type;
     l_tmp number;

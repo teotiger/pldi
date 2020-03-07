@@ -21,12 +21,12 @@ as
 
   -- Convert BLOB to CLOB with corresponding charset and normalize the line
   -- endings to unix mode (LF).
-  function blob_to_clob(
+  function blob_to_unix_clob(
       i_blob_value      in blob,
       i_ora_charset_id  in pls_integer)
     return clob deterministic;
 
-  -- Split a huge string into an array of strings.
+  -- Split a string into an array of strings.
   function split_vc2(
       i_string_value    in varchar2,
       i_delimiter       in varchar2,
